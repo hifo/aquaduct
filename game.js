@@ -18,6 +18,12 @@ function Aqueduct (x, y) {
 }
 Aqueduct.try_add = function (x, y) {
     if (aqueduct_path.length == 0) {
+	console.log (x, y);
+	if (x == 0) {
+	    if (y == 3 || y == 8) {
+		return true;
+	    }
+	}
     }
 
     return  false;
@@ -63,9 +69,16 @@ function draw () {
 
     draw_grid (ctx);
 
+    // Draw lake
     ctx.save ();
     ctx.fillStyle = "rgb(0, 0, 255)";
     ctx.fillRect (0 * GRID_SIZE, 4 * GRID_SIZE, 2 * GRID_SIZE, 4 * GRID_SIZE);
+    ctx.restore ();
+
+    // Draw city
+    ctx.save ();
+    ctx.fillStyle = "rgb(255, 255, 255)";
+    ctx.fillRect (22 * GRID_SIZE, 5 * GRID_SIZE, 2 * GRID_SIZE, 2 * GRID_SIZE);
     ctx.restore ();
 
     ctx.save ();
@@ -94,8 +107,9 @@ function mouse_down (event) {
     y = grid_val (mouse_y);
 
     if (Aqueduct.try_add (x, y)) {
-	trigger_update ();
+	aqueduct_path.push (new Aqueduct (x, y));
     }
+    trigger_update ();
 }
 
 function mouse_motion (event) {
