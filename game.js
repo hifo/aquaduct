@@ -1,8 +1,21 @@
 var canvas;
+var GRID_SIZE = 50;
 
 var keys = {};
 
-var GRID_SIZE = 50;
+var aqueduct_path = [];
+Aqueduct.prototype = new Game_Object;
+function Aqueduct (x, y) {
+    console.log ("New piece");
+    Game_Object.call (this, "aqueduct.png", 1, x * GRID_SIZE + GRID_SIZE / 2,
+		      y * GRID_SIZE + GRID_SIZE / 2, 0,
+		      "rect");
+}
+
+function grid_val (coord) {
+    return Math.floor (coord / GRID_SIZE);
+}
+
 function draw_grid (ctx) {
     ctx.save ();
 
@@ -39,6 +52,9 @@ function draw () {
 
     draw_grid (ctx);
 
+    for (a in aqueduct_path) {
+	aqueduct_path[a].draw (ctx);
+    }
 }
 
 function update () {
@@ -48,6 +64,10 @@ function update () {
 function mouse_down (event) {
     var mouse_x = event.offsetX - 5;
     var mouse_y = event.offsetY - 5;
+
+    aqueduct_path.push (new Aqueduct (grid_val (mouse_x),
+				      grid_val (mouse_y)));
+    update ();
 }
 
 function mouse_motion (event) {
