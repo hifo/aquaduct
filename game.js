@@ -11,6 +11,19 @@ function Aqueduct (x, y) {
     Game_Object.call (this, "aqueduct.png", 1, x * GRID_SIZE + GRID_SIZE / 2,
 		      y * GRID_SIZE + GRID_SIZE / 2, 0,
 		      "rect");
+
+    this.grid_x = x;
+    this.grid_y = y;
+}
+Aqueduct.try_add = function (x, y) {
+    var 
+    if (aqueduct_path.length == 0) {
+	
+    }
+
+    aqueduct_path.push (new Aqueduct (x, y));
+
+
 }
 
 function grid_val (coord) {
@@ -57,14 +70,7 @@ function draw () {
 
     for (a in aqueduct_path) {
 	aqueduct_path[a].draw (ctx);
-	ctx.save ();
-	ctx.fillStyle = "rgb(255, 0, 0)";
-	ctx.fillRect (aqueduct_path[a].x - 5, aqueduct_path[a].y - 5,
-		      10, 10);
-	ctx.restore ();
     }
-
-    ctx.drawImage (cursor_aqueduct.image, 700, 500);
 }
 
 function update () {
@@ -79,9 +85,12 @@ function mouse_down (event) {
     var mouse_x = event.offsetX - 5;
     var mouse_y = event.offsetY - 5;
 
-    aqueduct_path.push (new Aqueduct (grid_val (mouse_x),
-				      grid_val (mouse_y)));
-    trigger_update ();
+    x = grid_val (mouse_x);
+    y = grid_val (mouse_y);
+
+    if (Aqueduct.try_add (x, y)) {
+	trigger_update ();
+    }
 }
 
 function mouse_motion (event) {
@@ -117,12 +126,12 @@ function init () {
 
     cursor_aqueduct = new Aqueduct (0, 0);
 
+    $(canvas).mousedown (mouse_down);
+    $(canvas).mousemove (mouse_motion);
+
     trigger_update ();
 }
 
 $(document).ready (init);
 $(document).keydown (key_press);
 $(document).keyup (key_release);
-$(document).mousedown (mouse_down);
-$(document).mousemove (mouse_motion);
- 
