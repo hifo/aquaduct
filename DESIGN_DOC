@@ -33,23 +33,49 @@ NPC List
 	-N/A
 
 		
-Needed Art Assets
+Needed Art Assets (size units given in grid squares, width by height)
 	-background (possibly multiple)
 	-goal city
+		2 by 2 squares
 	-water source
+		2 by 3 squares
+		we're picturing a lake on a mountain
 	-villages
-	-aquaduct pieces
-	-mountain/chasm
+		1 square
+	-aqueduct pieces
+		Corners, straight pieces, half-way into a square
+		1 square
+	-mountain
+		2 by 2 squares
 	-volcano
+		2 by 2 squares
 	-river
-	-forest/jungle
+		1 square
+		this is a piece of a river
+	-forest
+		1 square
 	-lake
+		various sizes
+		include a 1 square river to lake connector
+
+Art Assest Priority
+	1. Aqueduct pieces, all three kinds
+	2. Water source
+	3. City
+	4. Villages
+	5. Background
+	6. Forest
+	7. River
+	8. Lake
+	9. Mountain
+	10. Volcano
+		
 	
  Design Concerns
 	Appearance of the aqueduct
 
  Notes
-
+	Grid square size = 50 by 50 pixels
 
 Schedule
 	1. Underlying grid
