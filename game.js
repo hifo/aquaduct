@@ -70,6 +70,10 @@ function mouse_down (event) {
     update ();
 }
 
+function mouse_up (event) {
+    update ();
+}
+
 function mouse_motion (event) {
     var mouse_x = event.offsetX - 5;
     var mouse_y = event.offsetY - 5;
@@ -103,4 +107,6 @@ $(document).ready (init);
 $(document).keydown (key_press);
 $(document).keyup (key_release);
 $(document).mousedown (mouse_down);
+$(document).mouseup (mouse_up);
 $(document).mousemove (mouse_motion);
+ 
