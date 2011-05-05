@@ -9,28 +9,28 @@ Contents
 5. Art Assets
 6. Design Concerns
 7. Notes
+8. Schedule
 
 Goals
-
+	finish in a day
 
 Regional History
-
-
+	People need water to survive, so we're building aqueducts. It takes a long time to get the stone to build the aqueducts so they only have a limited supply. 
 	
 Quest Story
-
+	Build an aqueduct to a city using a limited amount of supplies. Other villages will give you some supplies if the water can also get to them because water is awesome.
 
 Level Design
-
+	
 
 General Level Overview
-
+	There is a water source on the far left of the play field and a city on the right. There is a strip with no villages running down the center, but there might be obstacles in it. There are villages scattered around randomly above and below this strip.
 
 Sub-levels
 
 
 NPC List
-
+	-N/A
 
 		
 Needed Art Assets
@@ -46,5 +46,15 @@ Needed Art Assets
 	-lake
 	
  Design Concerns
+	Appearance of the aqueduct
 
  Notes
+
+
+Schedule
+	1. Underlying grid
+	2. Placing aqueduct rectangles in legal locations
+	3. Adjacent to city is victory
+	4. Limited number of aqueduct pieces
+	5. Placing adjacent to villages provides more pieces
+	6. Make villages randomly appear above and below the open strip
