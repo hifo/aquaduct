@@ -1,15 +1,17 @@
 var canvas;
+var main_loop;
 var GRID_SIZE = 50;
 
 var keys = {};
 
+var cursor_aqueduct;
 var aqueduct_path = [];
 Aqueduct.prototype = new Game_Object;
 function Aqueduct (x, y) {
-    console.log ("New piece");
     Game_Object.call (this, "aqueduct.png", 1, x * GRID_SIZE + GRID_SIZE / 2,
 		      y * GRID_SIZE + GRID_SIZE / 2, 0,
 		      "rect");
+    console.log ("New piece at (" + this.x + ", " + this.y + ")");
 }
 
 function grid_val (coord) {
@@ -54,11 +56,22 @@ function draw () {
 
     for (a in aqueduct_path) {
 	aqueduct_path[a].draw (ctx);
+	console.log ("Drawing at (" + aqueduct_path[a].x
+		     + ", " + aqueduct_path[a].y + ")");
+	ctx.save ();
+	ctx.fillStyle = "rgb(255, 0, 0)";
+	ctx.fillRect (aqueduct_path[a].x - 5, aqueduct_path[a].y - 5,
+		      10, 10);
+	ctx.restore ();
     }
 }
 
 function update () {
     draw ();
+}
+
+function trigger_update () {
+    setTimeout (update, 100);
 }
 
 function mouse_down (event) {
@@ -67,16 +80,15 @@ function mouse_down (event) {
 
     aqueduct_path.push (new Aqueduct (grid_val (mouse_x),
 				      grid_val (mouse_y)));
-    update ();
-}
-
-function mouse_up (event) {
-    update ();
+    trigger_update ();
 }
 
 function mouse_motion (event) {
     var mouse_x = event.offsetX - 5;
     var mouse_y = event.offsetY - 5;
+
+    cursor_aqueduct.x = grid_val (mouse_x);
+    cursor_aqueduct.y = grid_val (mouse_y);
 }
 
 function key_press (event) {
@@ -100,13 +112,14 @@ function key_release (event) {
 function init () {
     canvas = document.getElementById("canvas");
 
-    update ();
+    cursor_aqueduct = new Aqueduct (0, 0);
+
+    trigger_update ();
 }
 
 $(document).ready (init);
 $(document).keydown (key_press);
 $(document).keyup (key_release);
 $(document).mousedown (mouse_down);
-$(document).mouseup (mouse_up);
 $(document).mousemove (mouse_motion);
  
