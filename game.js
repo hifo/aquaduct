@@ -6,13 +6,20 @@ var GRID_SIZE = 50;
 function draw_grid (ctx) {
     ctx.save ();
 
-    ctx.strokeStyle = "rgb(200, 200, 200)";
+    ctx.strokeStyle = "rgb(128, 128, 128)";
     ctx.lineWidth = 1;
 
     for (var row = 0; row < canvas.height; row += GRID_SIZE) {
 	ctx.beginPath ();
 	ctx.moveTo (0, row);
 	ctx.lineTo (canvas.width, row);
+	ctx.stroke ();
+    }
+
+    for (var col = 0; col < canvas.width; col += GRID_SIZE) {
+	ctx.beginPath ();
+	ctx.moveTo (col, 0);
+	ctx.lineTo (col, canvas.height);
 	ctx.stroke ();
     }
 
