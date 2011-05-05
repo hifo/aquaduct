@@ -19,8 +19,13 @@ function Aqueduct (x, y) {
 Aqueduct.try_add = function (x, y) {
     if (aqueduct_path.length == 0) {
 	console.log (x, y);
-	if (x == 0) {
+	if (x < 3) {
 	    if (y == 3 || y == 8) {
+		return true;
+	    }
+	}
+	if (x == 2) {
+	    if (y < 8 && y > 3) {
 		return true;
 	    }
 	}
