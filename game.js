@@ -11,7 +11,6 @@ function Aqueduct (x, y) {
     Game_Object.call (this, "aqueduct.png", 1, x * GRID_SIZE + GRID_SIZE / 2,
 		      y * GRID_SIZE + GRID_SIZE / 2, 0,
 		      "rect");
-    console.log ("New piece at (" + this.x + ", " + this.y + ")");
 }
 
 function grid_val (coord) {
@@ -54,16 +53,18 @@ function draw () {
 
     draw_grid (ctx);
 
+    cursor_aqueduct.draw (ctx);
+
     for (a in aqueduct_path) {
 	aqueduct_path[a].draw (ctx);
-	console.log ("Drawing at (" + aqueduct_path[a].x
-		     + ", " + aqueduct_path[a].y + ")");
 	ctx.save ();
 	ctx.fillStyle = "rgb(255, 0, 0)";
 	ctx.fillRect (aqueduct_path[a].x - 5, aqueduct_path[a].y - 5,
 		      10, 10);
 	ctx.restore ();
     }
+
+    ctx.drawImage (cursor_aqueduct.image, 700, 500);
 }
 
 function update () {
@@ -87,8 +88,10 @@ function mouse_motion (event) {
     var mouse_x = event.offsetX - 5;
     var mouse_y = event.offsetY - 5;
 
-    cursor_aqueduct.x = grid_val (mouse_x);
-    cursor_aqueduct.y = grid_val (mouse_y);
+    cursor_aqueduct.x = grid_val (mouse_x) * GRID_SIZE + GRID_SIZE / 2;
+    cursor_aqueduct.y = grid_val (mouse_y) * GRID_SIZE + GRID_SIZE / 2;
+
+    trigger_update ();
 }
 
 function key_press (event) {
