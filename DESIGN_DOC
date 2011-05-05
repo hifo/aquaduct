@@ -38,7 +38,7 @@ Needed Art Assets (size units given in grid squares, width by height)
 	-goal city
 		2 by 2 squares
 	-water source
-		2 by 3 squares
+		2 by 4 squares
 		we're picturing a lake on a mountain
 	-villages
 		1 square
