@@ -17,14 +17,10 @@ function Aqueduct (x, y) {
     this.grid_y = y;
 }
 Aqueduct.try_add = function (x, y) {
-    var 
     if (aqueduct_path.length == 0) {
-	
     }
 
-    aqueduct_path.push (new Aqueduct (x, y));
-
-
+    return  false;
 }
 
 function grid_val (coord) {
@@ -67,7 +63,15 @@ function draw () {
 
     draw_grid (ctx);
 
+    ctx.save ();
+    ctx.fillStyle = "rgb(0, 0, 255)";
+    ctx.fillRect (0 * GRID_SIZE, 4 * GRID_SIZE, 2 * GRID_SIZE, 4 * GRID_SIZE);
+    ctx.restore ();
+
+    ctx.save ();
+    ctx.globalAlpha = .5;
     cursor_aqueduct.draw (ctx);
+    ctx.restore ();
 
     for (a in aqueduct_path) {
 	aqueduct_path[a].draw (ctx);
