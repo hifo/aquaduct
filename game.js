@@ -1,5 +1,25 @@
 var canvas;
 
+var keys = {};
+
+var GRID_SIZE = 50;
+function draw_grid (ctx) {
+    ctx.save ();
+
+    ctx.strokeStyle = "rgb(200, 200, 200)";
+    ctx.lineWidth = 1;
+
+    for (var row = 0; row < canvas.height; row += GRID_SIZE) {
+	ctx.beginPath ();
+	ctx.moveTo (0, row);
+	ctx.lineTo (canvas.width, row);
+	ctx.stroke ();
+    }
+
+    ctx.restore ();
+}
+
+
 function draw () {
     ctx = canvas.getContext ('2d');
 
@@ -9,6 +29,8 @@ function draw () {
     ctx.fillRect (0, 0, canvas.width, canvas.height);
 
     ctx.restore ();
+
+    draw_grid (ctx);
 
 }
 
