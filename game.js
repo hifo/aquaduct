@@ -2,6 +2,7 @@ var canvas;
 var main_loop;
 var GRID_SIZE = 50;
 var max_aqueduct_pieces = 20;
+var random_pieces_range = 4;
 
 var keys = {};
 
