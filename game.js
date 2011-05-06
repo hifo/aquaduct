@@ -159,7 +159,14 @@ function Village (x, y) {
 	+ Math.floor (Math.random() * random_pieces_range) + 1;
 }
 Village.create = function () {
-    
+    var x = Math.floor (Math.random() * GRID_W);
+    var y = Math.floor (Math.random() * GRID_H);
+
+    var v = new Village (x, y);
+
+    villages.push (v);
+
+    return v;
 };
 
 function grid_val (coord) {
@@ -221,6 +228,10 @@ function draw () {
 
     for (a in aqueduct_path) {
 	aqueduct_path[a].draw (ctx);
+    }
+
+    for (v in villages) {
+	villages[v].draw (ctx);
     }
 
     draw_game_message (ctx, canvas);
@@ -299,6 +310,10 @@ function init () {
     goal_city = load_image("goal_city.png");
     
     background = load_image("background.png");
+
+    for (var i = 0; i < 6; i++) {
+	Village.create ();
+    }
 
     $(canvas).mousedown (mouse_down);
     $(canvas).mousemove (mouse_motion);
