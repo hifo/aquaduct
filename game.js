@@ -44,13 +44,16 @@ function Aqueduct (x, y, dir) {
 Aqueduct.try_add = function (x, y) {
     if (aqueduct_path.length == 0) {
 	if (x < 2) {
-	    if (y == 3 || y == 8) {
-		return true;
+	    if (y == 3) {
+		return "up";
+	    }
+	    if (y == 8) {
+		return "down";
 	    }
 	}
 	if (x == 2) {
 	    if (y < 8 && y > 3) {
-		return true;
+		return "right";
 	    }
 	}
 	return false;
@@ -65,59 +68,32 @@ Aqueduct.try_add = function (x, y) {
     var last_piece = aqueduct_path[aqueduct_path.length - 1];
 
     if (x == last_piece.grid_x) {
-	if (y == last_piece.grid_y - 1
-	    || y == last_piece.grid_y + 1) {
-	    return true;
+	if (y == last_piece.grid_y - 1) {
+	    return "up";
+	}
+	if (y == last_piece.grid_y + 1) {
+	    return "down";
 	}
     }
     if (y == last_piece.grid_y) {
-	if (x == last_piece.grid_x - 1
-	    || x == last_piece.grid_x + 1) {
-	    return true;
+	if (x == last_piece.grid_x - 1) {
+	    return "left";
+	}
+	if (x == last_piece.grid_x + 1) {
+	    return "right";
 	}
     }
 
     return  false;
 };
-Aqueduct.add_piece = function (x, y) {
+Aqueduct.add_piece = function (x, y, dir) {
     adjust_supply (-1);    
-    if (aqueduct_path.length == 0) {
-	var dir;
-	if (x < 2) {
-	    if (y == 3) {
-		dir = "up";		
-	    }
-	    if (y == 8) {
-		dir = "down";		
-	    }
-	}
-	if (x == 2) {
-	    if (y < 8 && y > 3) {
-		dir = "right";
-	    }
-	}
 
-	aqueduct_path.push (new Aqueduct (x, y, dir));
-    } else {
-	var last_piece = aqueduct_path[aqueduct_path.length - 1];
-	last_piece.current_frame = 1;
-
-	if (x == last_piece.grid_x) {
-	    if (y == last_piece.grid_y - 1) {
-		dir = "up";
-	    } else if (y == last_piece.grid_y + 1) {
-		dir = "down";
-	    }
-	} else if (y == last_piece.grid_y) {
-	    if (x == last_piece.grid_x - 1) {
-		dir = "left";
-	    } else if (x == last_piece.grid_x + 1) {
-		dir = "right";
-	    }
-	}
-
-	aqueduct_path.push (new Aqueduct (x, y, dir));
+    if (aqueduct_path.length > 0) {
+	aqueduct_path[aqueduct_path.length - 1].current_frame = 1;
     }
+
+    aqueduct_path.push (new Aqueduct (x, y, dir));
 
     if (x == GRID_W - 3) {
 	if (y == Math.floor (GRID_H / 2) - 1 || y == Math.floor (GRID_H / 2)) {
@@ -212,8 +188,9 @@ function mouse_down (event) {
     x = grid_val (mouse_x);
     y = grid_val (mouse_y);
 
-    if (Aqueduct.try_add (x, y)) {
-	Aqueduct.add_piece (x, y);
+    var dir = Aqueduct.try_add (x, y);
+    if (dir) {
+	Aqueduct.add_piece (x, y, dir);
     }
     trigger_update ();
 }
