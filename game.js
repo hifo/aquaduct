@@ -47,7 +47,9 @@ var aqueduct_path = [];
 Aqueduct.prototype = new Grid_Object;
 function Aqueduct (x, y, dir) {
     Grid_Object.call (this, x, y, dir,
-		      ["aqueduct_cap.png", "aqueduct.png", "corner.png"]);
+		      ["aqueduct_cap.png", "aqueduct.png", "corner.png",
+		       "none.png"]);
+    this.extension = false;
 }
 Aqueduct.try_add = function (x, y) {
     if (aqueduct_path.length == 0) {
@@ -94,12 +96,14 @@ Aqueduct.try_add = function (x, y) {
 
     return false;
 };
-Aqueduct.add_piece = function (x, y, dir) {
+Aqueduct.add_piece = function (x, y, dir, extension) {
     adjust_supply (-1);    
 
     if (aqueduct_path.length > 0) {
 	var last_piece = aqueduct_path[aqueduct_path.length - 1];
-	last_piece.current_frame = 1;
+	if (last_piece.extension == false) {
+	    last_piece.current_frame = 1;
+	}
 	if (dir != last_piece.dir) {
 	    last_piece.current_frame = 2;
 	    switch (last_piece.dir) {
@@ -136,6 +140,30 @@ Aqueduct.add_piece = function (x, y, dir) {
     }
 
     aqueduct_path.push (new Aqueduct (x, y, dir));
+    if (typeof (extension) != "undefined") {
+	aqueduct_path[aqueduct_path.length - 1].current_frame = 3;
+	aqueduct_path[aqueduct_path.length - 1].extension = true;
+    } else {
+	for (v in villages) {
+	    if (x == villages[v].grid_x) {
+		if (y == villages[v].grid_y - 1
+		    || y == villages[v].grid_y + 1) {
+		    Aqueduct.connect_to_village (villages[v], "up");
+		}
+		if (y == villages[v].grid_y + 1) {
+		    Aqueduct.connect_to_village (villages[v], "down");
+		}
+	    }
+	    if (y == villages[v].grid_y) {
+		if (x == villages[v].grid_x - 1) {
+		    Aqueduct.connect_to_village (villages[v], "left");
+		}
+		if (x == villages[v].grid_x + 1) {
+		    Aqueduct.connect_to_village (villages[v], "right");
+		}
+	    }
+	}
+    }
 
     if (x == GRID_W - 3) {
 	if (y == Math.floor (GRID_H / 2) - 1 || y == Math.floor (GRID_H / 2)) {
@@ -149,6 +177,10 @@ Aqueduct.add_piece = function (x, y, dir) {
     } else if (aqueduct_supply == 0){
             loss();
     }
+};
+Aqueduct.connect_to_village = function (village, dir) {
+    adjust_supply (1);
+    Aqueduct.add_piece (village.grid_x, village.grid_y, dir, true);
 };
 
 var villages = [];
