@@ -243,6 +243,8 @@ function key_release (event) {
     case KEY.ESCAPE:
 	clearInterval (main_loop);
 	break;
+    case ord('`'):
+    aqueduct_supply += 20;
     }
 }
 
