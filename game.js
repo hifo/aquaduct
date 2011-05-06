@@ -212,8 +212,9 @@ function mouse_down (event) {
     x = grid_val (mouse_x);
     y = grid_val (mouse_y);
 
-    if (Aqueduct.try_add (x, y)) {
-	Aqueduct.add_piece (x, y);
+    var dir = Aqueduct.try_add (x, y);
+    if (dir) {
+	Aqueduct.add_piece (x, y, dir);
     }
     trigger_update ();
 }
