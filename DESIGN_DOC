@@ -78,9 +78,9 @@ Art Assest Priority
 	Grid square size = 50 by 50 pixels
 
 Schedule
-	1. Underlying grid
+	1. Underlying grid - done
 	2. Placing aqueduct rectangles in legal locations
-	3. Adjacent to city is victory
-	4. Limited number of aqueduct pieces
+	3. Adjacent to city is victory - done
+	4. Limited number of aqueduct pieces - done
 	5. Placing adjacent to villages provides more pieces
 	6. Make villages randomly appear above and below the open strip
