@@ -34,12 +34,14 @@ var aqueduct_path = [];
 Aqueduct.prototype = new Game_Object;
 function Aqueduct (x, y, dir) {
     Game_Object.call (this, ["aqueduct_cap.png", "aqueduct.png"], 1,
-		      x * GRID_SIZE + GRID_SIZE / 2,
-		      y * GRID_SIZE + GRID_SIZE / 2, DIRS[dir] * Math.PI / 2,
-		      "rect");
-
+		      0, 0, DIRS[dir] * Math.PI / 2, "rect");
     this.grid_x = x;
     this.grid_y = y;
+    this.update_pos ();
+}
+Aqueduct.prototype.update_pos = function () {
+    this.x = this.grid_x * GRID_SIZE + GRID_SIZE / 2;
+    this.y = this.grid_y * GRID_SIZE + GRID_SIZE / 2;
 }
 Aqueduct.try_add = function (x, y) {
     if (aqueduct_path.length == 0) {
@@ -84,7 +86,7 @@ Aqueduct.try_add = function (x, y) {
 	}
     }
 
-    return  false;
+    return false;
 };
 Aqueduct.add_piece = function (x, y, dir) {
     adjust_supply (-1);    
@@ -161,10 +163,12 @@ function draw () {
 		    2 * GRID_SIZE, 2 * GRID_SIZE);
     ctx.restore ();
 
-    ctx.save ();
-    ctx.globalAlpha = .5;
-    cursor_aqueduct.draw (ctx);
-    ctx.restore ();
+    if (cursor_aqueduct.visible) {
+	ctx.save ();
+	ctx.globalAlpha = .5;
+	cursor_aqueduct.draw (ctx);
+	ctx.restore ();
+    }
 
     for (a in aqueduct_path) {
 	aqueduct_path[a].draw (ctx);
@@ -199,8 +203,17 @@ function mouse_motion (event) {
     var mouse_x = event.offsetX - 5;
     var mouse_y = event.offsetY - 5;
 
-    cursor_aqueduct.x = grid_val (mouse_x) * GRID_SIZE + GRID_SIZE / 2;
-    cursor_aqueduct.y = grid_val (mouse_y) * GRID_SIZE + GRID_SIZE / 2;
+    cursor_aqueduct.grid_x = grid_val (mouse_x);
+    cursor_aqueduct.grid_y = grid_val (mouse_y);
+    
+    var dir = Aqueduct.try_add (cursor_aqueduct.grid_x, cursor_aqueduct.grid_y);
+    cursor_aqueduct.update_pos ();
+    if (dir) {
+	cursor_aqueduct.theta = DIRS[dir] * Math.PI / 2;
+	cursor_aqueduct.visible = true;
+    } else {
+	cursor_aqueduct.visible = false;
+    }
 
     trigger_update ();
 }
@@ -234,6 +247,7 @@ function init () {
     adjust_supply (0);
 
     cursor_aqueduct = new Aqueduct (0, 0, "right");
+    cursor_aqueduct.visible = false;
     goal_city = load_image("goal_city.png");
 
     $(canvas).mousedown (mouse_down);
