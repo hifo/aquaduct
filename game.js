@@ -109,21 +109,21 @@ Aqueduct.add_piece = function (x, y, dir) {
 		if (dir == "down") {
 		    last_piece.theta = 3 * Math.PI / 2;
 		} else if (dir == "up") {
-		    last_piece.theta = Math.PI / 2;
+		    last_piece.theta = Math.PI;
 		}
 		break;
 	    case "up":
 		if (dir == "left") {
-		    last_piece.theta = Math.PI / 2;
+		    last_piece.theta = 0;
 		} else if (dir == "right") {
-		    last_piece.theta = Math.PI;
+		    last_piece.theta = 3 * Math.PI / 2;
 		}
 		break;	
 	    case "down":
 		if (dir == "left") {
-		    last_piece.theta = 0;
+		    last_piece.theta = Math.PI / 2;
 		} else if (dir == "right") {
-		    last_piece.theta = 3 * Math.PI / 2;
+		    last_piece.theta = Math.PI;
 		}
 		break;	
 	    }
@@ -153,7 +153,7 @@ function grid_val (coord) {
 function draw_grid (ctx) {
     ctx.save ();
 
-    ctx.strokeStyle = "rgb(128, 128, 128)";
+    ctx.strokeStyle = "rgb(160, 160, 160)";
     ctx.lineWidth = 1;
 
     for (var row = 0; row < canvas.height; row += GRID_SIZE) {
