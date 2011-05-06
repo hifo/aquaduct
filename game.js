@@ -83,8 +83,7 @@ function draw () {
 
     // Draw city
     ctx.save ();
-    ctx.fillStyle = "rgb(255, 255, 255)";
-    ctx.fillRect (22 * GRID_SIZE, 5 * GRID_SIZE, 2 * GRID_SIZE, 2 * GRID_SIZE);
+    safe_draw_image(ctx, goal_city, 22 * GRID_SIZE, 5 * GRID_SIZE, 2 * GRID_SIZE, 2 * GRID_SIZE);
     ctx.restore ();
 
     ctx.save ();
@@ -150,6 +149,7 @@ function init () {
     canvas = document.getElementById("canvas");
 
     cursor_aqueduct = new Aqueduct (0, 0);
+    goal_city = load_image("goal_city.png");
 
     $(canvas).mousedown (mouse_down);
     $(canvas).mousemove (mouse_motion);
