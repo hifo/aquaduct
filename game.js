@@ -149,8 +149,7 @@ function draw () {
 
     ctx.save ();
 
-    ctx.fillStyle = "rgb(0, 0, 0)";
-    ctx.fillRect (0, 0, canvas.width, canvas.height);
+    safe_draw_image(ctx, background, 0,0, GRID_SIZE*24, GRID_SIZE*12);
 
     ctx.restore ();
 
@@ -253,6 +252,8 @@ function init () {
     cursor_aqueduct = new Aqueduct (0, 0, "right");
     cursor_aqueduct.visible = false;
     goal_city = load_image("goal_city.png");
+    
+    background = load_image("background.png");
 
     $(canvas).mousedown (mouse_down);
     $(canvas).mousemove (mouse_motion);
