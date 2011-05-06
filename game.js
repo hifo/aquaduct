@@ -1,6 +1,9 @@
 var canvas;
 var main_loop;
 var GRID_SIZE = 50;
+var GRID_W = 24;
+var GRID_H = 12;
+
 var aqueduct_supply = 20;
 var random_pieces_range = 4;
 
@@ -9,6 +12,10 @@ var keys = {};
 function adjust_supply (amount) {
     aqueduct_supply += amount;
     $("#supply").text (aqueduct_supply);
+}
+
+function victory () {
+    console.log ("Victory");
 }
 
 var cursor_aqueduct;
@@ -58,12 +65,22 @@ Aqueduct.try_add = function (x, y) {
     }
 
     return  false;
-}
+};
 Aqueduct.add_piece = function (x, y) {
     adjust_supply (-1);    
     aqueduct_path.push (new Aqueduct (x, y));
 
-}
+    if (x == GRID_W - 3) {
+	if (y == Math.floor (GRID_H / 2) || y == Math.floor (GRID_H / 2) + 1) {
+	    victory ();
+	}
+    } else if (x >= GRID_W - 3) {
+	if (y == Math.floor (GRID_H / 2) - 1
+	    || y == Math.floor (GRID_H / 2) + 2) {
+	    victory ();
+	}
+    }
+};
 
 function grid_val (coord) {
     return Math.floor (coord / GRID_SIZE);
@@ -113,7 +130,8 @@ function draw () {
 
     // Draw city
     ctx.save ();
-    safe_draw_image(ctx, goal_city, 22 * GRID_SIZE, 5 * GRID_SIZE, 2 * GRID_SIZE, 2 * GRID_SIZE);
+    safe_draw_image(ctx, goal_city, (GRID_W - 2) * GRID_SIZE, 5 * GRID_SIZE,
+		    2 * GRID_SIZE, 2 * GRID_SIZE);
     ctx.restore ();
 
     ctx.save ();
