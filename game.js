@@ -25,6 +25,10 @@ function victory () {
     game_messages.push (new Game_Msg ("You win!", "rgb(255, 0, 0)"));
 }
 
+function loss (){
+    game_messages.push (new Game_Msg ("You lose!", "rgb(255, 0,0)"));
+}
+
 var cursor_aqueduct;
 var aqueduct_path = [];
 Aqueduct.prototype = new Game_Object;
@@ -124,6 +128,8 @@ Aqueduct.add_piece = function (x, y) {
 	    || y == Math.floor (GRID_H / 2) + 1) {
 	    victory ();
 	}
+    } else if (aqueduct_supply == 0){
+            loss();
     }
 };
 
