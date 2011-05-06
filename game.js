@@ -29,20 +29,25 @@ function loss (){
     game_messages.push (new Game_Msg ("You lose!", "rgb(255, 0,0)"));
 }
 
-var cursor_aqueduct;
-var aqueduct_path = [];
-Aqueduct.prototype = new Game_Object;
-function Aqueduct (x, y, dir) {
-    Game_Object.call (this, ["aqueduct_cap.png", "aqueduct.png", "corner.png"],
-		      1, 0, 0, DIRS[dir] * Math.PI / 2, "rect");
+Grid_Object.prototype = new Game_Object;
+function Grid_Object (x, y, dir, image) {
+    Game_Object.call (this, image, 1, 0, 0, DIRS[dir] * Math.PI / 2, "rect");
     this.grid_x = x;
     this.grid_y = y;
     this.dir = dir;
     this.update_pos ();
 }
-Aqueduct.prototype.update_pos = function () {
+Grid_Object.prototype.update_pos = function () {
     this.x = this.grid_x * GRID_SIZE + GRID_SIZE / 2;
     this.y = this.grid_y * GRID_SIZE + GRID_SIZE / 2;
+};
+
+var cursor_aqueduct;
+var aqueduct_path = [];
+Aqueduct.prototype = new Grid_Object;
+function Aqueduct (x, y, dir) {
+    Grid_Object.call (this, x, y, dir,
+		      ["aqueduct_cap.png", "aqueduct.png", "corner.png"]);
 }
 Aqueduct.try_add = function (x, y) {
     if (aqueduct_path.length == 0) {
@@ -146,6 +151,17 @@ Aqueduct.add_piece = function (x, y, dir) {
     }
 };
 
+var villages = [];
+Village.prototype = new Grid_Object;
+function Village (x, y) {
+    Grid_Object.call (this, x, y, "right", "village.png");
+    this.supply = Math.floor (Math.random() * random_pieces_range) + 1
+	+ Math.floor (Math.random() * random_pieces_range) + 1;
+}
+Village.create = function () {
+    
+};
+
 function grid_val (coord) {
     return Math.floor (coord / GRID_SIZE);
 }
@@ -153,7 +169,7 @@ function grid_val (coord) {
 function draw_grid (ctx) {
     ctx.save ();
 
-    ctx.strokeStyle = "rgb(160, 160, 160)";
+    ctx.strokeStyle = "rgb(175, 175, 175)";
     ctx.lineWidth = 1;
 
     for (var row = 0; row < canvas.height; row += GRID_SIZE) {
@@ -172,7 +188,6 @@ function draw_grid (ctx) {
 
     ctx.restore ();
 }
-
 
 function draw () {
     ctx = canvas.getContext ('2d');
