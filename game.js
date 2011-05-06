@@ -98,6 +98,20 @@ Aqueduct.add_piece = function (x, y) {
 	var last_piece = aqueduct_path[aqueduct_path.length - 1];
 	last_piece.current_frame = 1;
 
+	if (x == last_piece.grid_x) {
+	    if (y == last_piece.grid_y - 1) {
+		dir = "up";
+	    } else if (y == last_piece.grid_y + 1) {
+		dir = "down";
+	    }
+	} else if (y == last_piece.grid_y) {
+	    if (x == last_piece.grid_x - 1) {
+		dir = "left";
+	    } else if (x == last_piece.grid_x + 1) {
+		dir = "right";
+	    }
+	}
+
 	aqueduct_path.push (new Aqueduct (x, y, dir));
     }
 
