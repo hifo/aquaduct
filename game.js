@@ -31,7 +31,7 @@ function Aqueduct (x, y) {
 }
 Aqueduct.try_add = function (x, y) {
     if (aqueduct_path.length == 0) {
-	if (x < 3) {
+	if (x < 2) {
 	    if (y == 3 || y == 8) {
 		return true;
 	    }
@@ -41,6 +41,7 @@ Aqueduct.try_add = function (x, y) {
 		return true;
 	    }
 	}
+	return false;
     }
 
     for (a in aqueduct_path) {
@@ -71,12 +72,12 @@ Aqueduct.add_piece = function (x, y) {
     aqueduct_path.push (new Aqueduct (x, y));
 
     if (x == GRID_W - 3) {
-	if (y == Math.floor (GRID_H / 2) || y == Math.floor (GRID_H / 2) + 1) {
+	if (y == Math.floor (GRID_H / 2) - 1 || y == Math.floor (GRID_H / 2)) {
 	    victory ();
 	}
-    } else if (x >= GRID_W - 3) {
-	if (y == Math.floor (GRID_H / 2) - 1
-	    || y == Math.floor (GRID_H / 2) + 2) {
+    } else if (x > GRID_W - 3) {
+	if (y == Math.floor (GRID_H / 2) - 2
+	    || y == Math.floor (GRID_H / 2) + 1) {
 	    victory ();
 	}
     }
