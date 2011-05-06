@@ -42,21 +42,19 @@ Aqueduct.try_add = function (x, y) {
 	}
     }
 
-    for (a in aqueduct_path) {
-	if (x == aqueduct_path[a].grid_x) {
-	    if (y == aqueduct_path[a].grid_y - 1
-		|| y == aqueduct_path[a].grid_y + 1) {
-		return true;
-	    }
-	}
-	if (y == aqueduct_path[a].grid_y) {
-	    if (x == aqueduct_path[a].grid_x - 1
-		|| x == aqueduct_path[a].grid_x + 1) {
-		return true;
-	    }
-	}
+    var last_piece = aqueduct_path[aqueduct_path.length - 1];
 
-
+    if (x == last_piece.grid_x) {
+	if (y == last_piece.grid_y - 1
+	    || y == last_piece.grid_y + 1) {
+	    return true;
+	}
+    }
+    if (y == last_piece.grid_y) {
+	if (x == last_piece.grid_x - 1
+	    || x == last_piece.grid_x + 1) {
+	    return true;
+	}
     }
 
     return  false;
@@ -64,7 +62,6 @@ Aqueduct.try_add = function (x, y) {
 Aqueduct.add_piece = function (x, y) {
     adjust_supply (-1);    
     aqueduct_path.push (new Aqueduct (x, y));
-
 
 }
 
