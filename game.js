@@ -1,6 +1,9 @@
 var canvas;
 var main_loop;
 var GRID_SIZE = 50;
+var GRID_W = 24;
+var GRID_H = 12;
+
 var aqueduct_supply = 20;
 var random_pieces_range = 4;
 
@@ -9,6 +12,10 @@ var keys = {};
 function adjust_supply (amount) {
     aqueduct_supply += amount;
     $("#supply").text (aqueduct_supply);
+}
+
+function victory () {
+    game_messages.push (new Game_Msg ("You win!", "rgb(255, 0, 0)"));
 }
 
 var cursor_aqueduct;
@@ -24,7 +31,7 @@ function Aqueduct (x, y) {
 }
 Aqueduct.try_add = function (x, y) {
     if (aqueduct_path.length == 0) {
-	if (x < 3) {
+	if (x < 2) {
 	    if (y == 3 || y == 8) {
 		return true;
 	    }
@@ -34,6 +41,7 @@ Aqueduct.try_add = function (x, y) {
 		return true;
 	    }
 	}
+	return false;
     }
 
     for (a in aqueduct_path) {
@@ -58,12 +66,22 @@ Aqueduct.try_add = function (x, y) {
     }
 
     return  false;
-}
+};
 Aqueduct.add_piece = function (x, y) {
     adjust_supply (-1);    
     aqueduct_path.push (new Aqueduct (x, y));
 
-}
+    if (x == GRID_W - 3) {
+	if (y == Math.floor (GRID_H / 2) - 1 || y == Math.floor (GRID_H / 2)) {
+	    victory ();
+	}
+    } else if (x > GRID_W - 3) {
+	if (y == Math.floor (GRID_H / 2) - 2
+	    || y == Math.floor (GRID_H / 2) + 1) {
+	    victory ();
+	}
+    }
+};
 
 function grid_val (coord) {
     return Math.floor (coord / GRID_SIZE);
@@ -113,7 +131,8 @@ function draw () {
 
     // Draw city
     ctx.save ();
-    safe_draw_image(ctx, goal_city, 22 * GRID_SIZE, 5 * GRID_SIZE, 2 * GRID_SIZE, 2 * GRID_SIZE);
+    safe_draw_image(ctx, goal_city, (GRID_W - 2) * GRID_SIZE, 5 * GRID_SIZE,
+		    2 * GRID_SIZE, 2 * GRID_SIZE);
     ctx.restore ();
 
     ctx.save ();
@@ -124,6 +143,8 @@ function draw () {
     for (a in aqueduct_path) {
 	aqueduct_path[a].draw (ctx);
     }
+
+    draw_game_message (ctx, canvas);
 }
 
 function update () {
