@@ -234,9 +234,9 @@ function key_release (event) {
 	clearInterval (main_loop);
 	break;
     case ord('6'):
-    adjust_supply (20);
-    console.log("` key pressed, increasing supply");
-    break;
+	adjust_supply (20);
+	console.log("` key pressed, increasing supply");
+	break;
     }
 }
 
