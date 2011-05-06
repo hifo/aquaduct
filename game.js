@@ -244,7 +244,8 @@ function key_release (event) {
 	clearInterval (main_loop);
 	break;
     case ord('`'):
-    aqueduct_supply += 20;
+    adjust_supply (20);
+    break;
     }
 }
 
