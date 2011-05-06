@@ -243,8 +243,9 @@ function key_release (event) {
     case KEY.ESCAPE:
 	clearInterval (main_loop);
 	break;
-    case ord('`'):
+    case ord('6'):
     adjust_supply (20);
+    console.log("` key pressed, increasing supply");
     break;
     }
 }
