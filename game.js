@@ -7,6 +7,13 @@ var GRID_H = 12;
 var aqueduct_supply = 20;
 var random_pieces_range = 4;
 
+var DIRS = {
+    'right': 0,
+    'down': 1,
+    'left': 2,
+    'up': 3
+};
+
 var keys = {};
 
 function adjust_supply (amount) {
@@ -21,9 +28,10 @@ function victory () {
 var cursor_aqueduct;
 var aqueduct_path = [];
 Aqueduct.prototype = new Game_Object;
-function Aqueduct (x, y) {
-    Game_Object.call (this, "aqueduct.png", 1, x * GRID_SIZE + GRID_SIZE / 2,
-		      y * GRID_SIZE + GRID_SIZE / 2, 0,
+function Aqueduct (x, y, dir) {
+    Game_Object.call (this, ["aqueduct_cap.png", "aqueduct.png"], 1,
+		      x * GRID_SIZE + GRID_SIZE / 2,
+		      y * GRID_SIZE + GRID_SIZE / 2, DIRS[dir] * Math.PI / 2,
 		      "rect");
 
     this.grid_x = x;
@@ -69,7 +77,29 @@ Aqueduct.try_add = function (x, y) {
 };
 Aqueduct.add_piece = function (x, y) {
     adjust_supply (-1);    
-    aqueduct_path.push (new Aqueduct (x, y));
+    if (aqueduct_path.length == 0) {
+	var dir;
+	if (x < 2) {
+	    if (y == 3) {
+		dir = "up";		
+	    }
+	    if (y == 8) {
+		dir = "down";		
+	    }
+	}
+	if (x == 2) {
+	    if (y < 8 && y > 3) {
+		dir = "right";
+	    }
+	}
+
+	aqueduct_path.push (new Aqueduct (x, y, dir));
+    } else {
+	var last_piece = aqueduct_path[aqueduct_path.length - 1];
+	last_piece.current_frame = 1;
+
+	aqueduct_path.push (new Aqueduct (x, y, dir));
+    }
 
     if (x == GRID_W - 3) {
 	if (y == Math.floor (GRID_H / 2) - 1 || y == Math.floor (GRID_H / 2)) {
@@ -202,7 +232,7 @@ function init () {
     aqueduct_supply = 20;
     adjust_supply (0);
 
-    cursor_aqueduct = new Aqueduct (0, 0);
+    cursor_aqueduct = new Aqueduct (0, 0, "right");
     goal_city = load_image("goal_city.png");
 
     $(canvas).mousedown (mouse_down);
