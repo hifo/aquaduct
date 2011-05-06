@@ -7,6 +7,8 @@ var GRID_H = 12;
 var aqueduct_supply = 20;
 var random_pieces_range = 4;
 
+var water_source;
+
 var DIRS = {
     'right': 0,
     'down': 1,
@@ -105,7 +107,9 @@ Aqueduct.add_piece = function (x, y, dir, extension) {
 	    last_piece.current_frame = 1;
 	}
 	if (dir != last_piece.dir) {
-	    last_piece.current_frame = 2;
+	    if (last_piece.extension == false) {
+		last_piece.current_frame = 2;
+	    }
 	    switch (last_piece.dir) {
 	    case "right":
 		if (dir == "down") {
@@ -140,25 +144,22 @@ Aqueduct.add_piece = function (x, y, dir, extension) {
     }
 
     aqueduct_path.push (new Aqueduct (x, y, dir));
-    if (typeof (extension) != "undefined") {
-	aqueduct_path[aqueduct_path.length - 1].current_frame = 3;
-	aqueduct_path[aqueduct_path.length - 1].extension = true;
-    } else {
+    if (typeof (extension) == "undefined") {
 	for (v in villages) {
+	    if (villages[v].irrigated) {
+		continue;
+	    }
 	    if (x == villages[v].grid_x) {
 		if (y == villages[v].grid_y - 1
 		    || y == villages[v].grid_y + 1) {
 		    Aqueduct.connect_to_village (villages[v], "up");
-		}
-		if (y == villages[v].grid_y + 1) {
+		} else if (y == villages[v].grid_y + 1) {
 		    Aqueduct.connect_to_village (villages[v], "down");
 		}
-	    }
-	    if (y == villages[v].grid_y) {
+	    } else if (y == villages[v].grid_y) {
 		if (x == villages[v].grid_x - 1) {
 		    Aqueduct.connect_to_village (villages[v], "left");
-		}
-		if (x == villages[v].grid_x + 1) {
+		} else if (x == villages[v].grid_x + 1) {
 		    Aqueduct.connect_to_village (villages[v], "right");
 		}
 	    }
@@ -180,7 +181,10 @@ Aqueduct.add_piece = function (x, y, dir, extension) {
 };
 Aqueduct.connect_to_village = function (village, dir) {
     adjust_supply (1);
+    village.irrigated = true;
     Aqueduct.add_piece (village.grid_x, village.grid_y, dir, true);
+    aqueduct_path[aqueduct_path.length - 1].current_frame = 3;
+    aqueduct_path[aqueduct_path.length - 1].extension = true;
 };
 
 var villages = [];
@@ -189,6 +193,7 @@ function Village (x, y) {
     Grid_Object.call (this, x, y, "right", "village.png");
     this.supply = Math.floor (Math.random() * random_pieces_range) + 1
 	+ Math.floor (Math.random() * random_pieces_range) + 1;
+    this.irrigated = false;
 }
 Village.create = function () {
     var x = Math.floor (Math.random() * GRID_W);
@@ -241,8 +246,7 @@ function draw () {
 
     // Draw lake
     ctx.save ();
-    ctx.fillStyle = "rgb(0, 0, 255)";
-    ctx.fillRect (0 * GRID_SIZE, 4 * GRID_SIZE, 2 * GRID_SIZE, 4 * GRID_SIZE);
+    safe_draw_image (ctx, water_source, 0, (GRID_H / 2 - 2) * GRID_SIZE);
     ctx.restore ();
 
     // Draw city
@@ -340,6 +344,7 @@ function init () {
     cursor_aqueduct = new Aqueduct (0, 0, "right");
     cursor_aqueduct.visible = false;
     goal_city = load_image("goal_city.png");
+    water_source = load_image("source.png");
     
     background = load_image("background.png");
 
