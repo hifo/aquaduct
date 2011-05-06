@@ -1,10 +1,15 @@
 var canvas;
 var main_loop;
 var GRID_SIZE = 50;
-var max_aqueduct_pieces = 20;
+var aqueduct_supply = 20;
 var random_pieces_range = 4;
 
 var keys = {};
+
+function adjust_supply (amount) {
+    aqueduct_supply += amount;
+    $("#supply").text (aqueduct_supply);
+}
 
 var cursor_aqueduct;
 var aqueduct_path = [];
@@ -19,7 +24,6 @@ function Aqueduct (x, y) {
 }
 Aqueduct.try_add = function (x, y) {
     if (aqueduct_path.length == 0) {
-	console.log (x, y);
 	if (x < 3) {
 	    if (y == 3 || y == 8) {
 		return true;
@@ -32,7 +36,36 @@ Aqueduct.try_add = function (x, y) {
 	}
     }
 
+    for (a in aqueduct_path) {
+	if (x == aqueduct_path[a].grid_x && y == aqueduct_path[a].grid_y) {
+	    return false;
+	}
+    }
+
+    for (a in aqueduct_path) {
+	if (x == aqueduct_path[a].grid_x) {
+	    if (y == aqueduct_path[a].grid_y - 1
+		|| y == aqueduct_path[a].grid_y + 1) {
+		return true;
+	    }
+	}
+	if (y == aqueduct_path[a].grid_y) {
+	    if (x == aqueduct_path[a].grid_x - 1
+		|| x == aqueduct_path[a].grid_x + 1) {
+		return true;
+	    }
+	}
+
+
+    }
+
     return  false;
+}
+Aqueduct.add_piece = function (x, y) {
+    adjust_supply (-1);    
+    aqueduct_path.push (new Aqueduct (x, y));
+
+
 }
 
 function grid_val (coord) {
@@ -113,7 +146,7 @@ function mouse_down (event) {
     y = grid_val (mouse_y);
 
     if (Aqueduct.try_add (x, y)) {
-	aqueduct_path.push (new Aqueduct (x, y));
+	Aqueduct.add_piece (x, y);
     }
     trigger_update ();
 }
@@ -148,6 +181,9 @@ function key_release (event) {
 
 function init () {
     canvas = document.getElementById("canvas");
+
+    aqueduct_supply = 20;
+    adjust_supply (0);
 
     cursor_aqueduct = new Aqueduct (0, 0);
 
