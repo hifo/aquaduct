@@ -15,7 +15,7 @@ function adjust_supply (amount) {
 }
 
 function victory () {
-    console.log ("Victory");
+    game_messages.push (new Game_Msg ("You win!", "rgb(255, 0, 0)"));
 }
 
 var cursor_aqueduct;
@@ -143,6 +143,8 @@ function draw () {
     for (a in aqueduct_path) {
 	aqueduct_path[a].draw (ctx);
     }
+
+    draw_game_message (ctx, canvas);
 }
 
 function update () {
