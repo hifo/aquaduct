@@ -59,11 +59,11 @@ Needed Art Assets (size units given in grid squares, width by height)
 		include a 1 square river to lake connector
 
 Art Assest Priority
-	1. Aqueduct pieces, all three kinds
+	1. Aqueduct pieces, all three kinds - done
 	2. Water source
-	3. City
+	3. City 
 	4. Villages
-	5. Background
+	5. Background - done
 	6. Forest
 	7. River
 	8. Lake
@@ -79,7 +79,7 @@ Art Assest Priority
 
 Schedule
 	1. Underlying grid - done
-	2. Placing aqueduct rectangles in legal locations
+	2. Placing aqueduct rectangles in legal locations - done
 	3. Adjacent to city is victory - done
 	4. Limited number of aqueduct pieces - done
 	5. Placing adjacent to villages provides more pieces
