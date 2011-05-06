@@ -33,10 +33,11 @@ var cursor_aqueduct;
 var aqueduct_path = [];
 Aqueduct.prototype = new Game_Object;
 function Aqueduct (x, y, dir) {
-    Game_Object.call (this, ["aqueduct_cap.png", "aqueduct.png"], 1,
-		      0, 0, DIRS[dir] * Math.PI / 2, "rect");
+    Game_Object.call (this, ["aqueduct_cap.png", "aqueduct.png", "corner.png"],
+		      1, 0, 0, DIRS[dir] * Math.PI / 2, "rect");
     this.grid_x = x;
     this.grid_y = y;
+    this.dir = dir;
     this.update_pos ();
 }
 Aqueduct.prototype.update_pos = function () {
@@ -92,7 +93,11 @@ Aqueduct.add_piece = function (x, y, dir) {
     adjust_supply (-1);    
 
     if (aqueduct_path.length > 0) {
-	aqueduct_path[aqueduct_path.length - 1].current_frame = 1;
+	var last_piece = aqueduct_path[aqueduct_path.length - 1];
+	last_piece.current_frame = 1;
+	if (dir != last_piece.dir) {
+	    last_piece.current_frame = 2;
+	}
     }
 
     aqueduct_path.push (new Aqueduct (x, y, dir));
@@ -235,7 +240,6 @@ function key_release (event) {
 	break;
     case ord('6'):
 	adjust_supply (20);
-	console.log("` key pressed, increasing supply");
 	break;
     }
 }
