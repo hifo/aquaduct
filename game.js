@@ -16,6 +16,8 @@ var DIRS = {
 
 var keys = {};
 
+var music;
+
 function adjust_supply (amount) {
     aqueduct_supply += amount;
     $("#supply").text (aqueduct_supply);
@@ -299,8 +301,28 @@ function key_release (event) {
     }
 }
 
+function load_sound () {
+    music = new Audio ("Blood Begets Blood.mp3");
+}
+
+function mute () {
+    music.volume = 0;
+}
+function unmute () {
+    music.volume = 1;
+}
+function toggle_mute (event) {
+    if (music.volume == 0) {
+	music.volume = 1;
+    } else {
+	music.volume = 0;
+    }
+}
+
 function init () {
     canvas = document.getElementById("canvas");
+    
+    load_sound ();
 
     aqueduct_supply = 20;
     adjust_supply (0);
@@ -317,6 +339,9 @@ function init () {
 
     $(canvas).mousedown (mouse_down);
     $(canvas).mousemove (mouse_motion);
+    
+    music.loop = true;
+    music.play ();
 
     trigger_update ();
 }
