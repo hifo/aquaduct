@@ -138,6 +138,7 @@ Aqueduct.add_piece = function (x, y, dir) {
     }
 
     aqueduct_path.push (new Aqueduct (x, y, dir));
+	play_sound_effect("rock1.pm3");
 
     if (x == GRID_W - 3) {
 	if (y == Math.floor (GRID_H / 2) - 1 || y == Math.floor (GRID_H / 2)) {
@@ -314,9 +315,28 @@ function unmute () {
 function toggle_mute (event) {
     if (music.volume == 0) {
 	music.volume = 1;
+    sound_fx_muted = false;
     } else {
 	music.volume = 0;
+    sound_fx_muted = true;
     }
+}
+
+var sound_fx_muted = false;
+
+function play_sound_effect(src){
+    var sound_effect = new Audio (src);
+
+    if (sound_fx_muted) {
+	sound_effect.volume = 0;
+    } else {
+	sound_effect.volume = 1;
+    }
+    sound_effect.play ();
+}
+
+function intro () {
+	game_messages.push (new Game_Msg ("The ancient Roman civilization was the first to use channels to direct water from natural sources to reservoirs and on to where the water was needed. These above-ground channels, called aqueducts, were made of stone and concrete. The first aqueduct was built in 312 BCE to bring water to the rapidly expanding city of Rome. As the Romans grew their empire, they brought the technology of Aqueducts across Europe.", "rgb(255, 0, 0)"));
 }
 
 function init () {
