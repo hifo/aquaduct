@@ -158,12 +158,12 @@ var villages = [];
 Village.prototype = new Grid_Object;
 function Village (x, y) {
     Grid_Object.call (this, x, y, "right", "village.png");
-    this.supply = Math.floor (Math.random() * random_pieces_range) + 1
-	+ Math.floor (Math.random() * random_pieces_range) + 1;
+    this.supply = Math.floor (roll(random_pieces_range)) + 1
+	+ Math.floor ( roll(random_pieces_range)) + 1;
 }
 Village.create = function () {
-    var x = Math.floor (Math.random() * GRID_W);
-    var y = Math.floor (Math.random() * GRID_H);
+    var x = Math.floor ( roll(GRID_W) );
+    var y = Math.floor ( roll(GRID_H) );
 
     var v = new Village (x, y);
 
@@ -333,6 +333,16 @@ function play_sound_effect(src){
 	sound_effect.volume = 1;
     }
     sound_effect.play ();
+}
+
+function start_intro () {
+    started = true;
+    in_intro = true;
+    intro_stage = 0;
+    game_msg = "";
+    tutorial_msg = "Welcome to Aqueduct Builder\n(Press T to continue in tutorial)";
+    music = new Audio ("assets/PH_mus_intro_1.ogg");
+    run_main_loop ();
 }
 
 function intro () {
