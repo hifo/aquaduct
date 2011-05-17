@@ -138,7 +138,7 @@ Aqueduct.add_piece = function (x, y, dir) {
     }
 
     aqueduct_path.push (new Aqueduct (x, y, dir));
-	play_sound_effect("rock1.pm3");
+	play_sound_effect("rock1.mp3");
 
     if (x == GRID_W - 3) {
 	if (y == Math.floor (GRID_H / 2) - 1 || y == Math.floor (GRID_H / 2)) {
@@ -158,12 +158,12 @@ var villages = [];
 Village.prototype = new Grid_Object;
 function Village (x, y) {
     Grid_Object.call (this, x, y, "right", "village.png");
-    this.supply = Math.floor (roll(random_pieces_range)) + 1
+    this.supply = Math.floor ( roll(random_pieces_range)) + 1
 	+ Math.floor ( roll(random_pieces_range)) + 1;
 }
 Village.create = function () {
-    var x = Math.floor ( roll(GRID_W) );
-    var y = Math.floor ( roll(GRID_H) );
+    var x = Math.floor ( roll(GRID_W));
+    var y = Math.floor ( roll(GRID_H));
 
     var v = new Village (x, y);
 
