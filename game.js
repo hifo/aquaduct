@@ -15,7 +15,6 @@ var DIRS = {
 };
 
 var keys = {};
-var villages = [];
 
 var music;
 
@@ -156,6 +155,7 @@ Aqueduct.add_piece = function (x, y, dir) {
 	
 	//checks to see if the piece placed is touching a village
 	//if it is, it adds that villages supply to the player's supply
+	//currently triggers even on diagonals, this might want to change (May 18, 2011)
 	for(v in villages){
 		if ( aqueduct_path[aqueduct_path.length - 1].touching(villages[v]) ){
 			adjust_supply (villages[v].supply);
@@ -164,6 +164,7 @@ Aqueduct.add_piece = function (x, y, dir) {
 	}
 };
 
+var villages = [];
 Village.prototype = new Grid_Object;
 function Village (x, y) {
     Grid_Object.call (this, x, y, "right", "village.png");
@@ -179,6 +180,22 @@ Village.create = function () {
     villages.push (v);
 
     return v;
+};
+
+var obstacles = [];
+Obstacle.prototype = new Grid_Object;
+function Obstacle (x,y) {
+	//Grid_Object.call (this, x, y, "right", "image src");
+}
+Obstacle.create = function () {
+	var x = Math.floor ( roll(GRID_W));
+	var y = Math.floor ( roll(GRID_H));
+	
+	var o = new Obstacle (x,y);
+	
+	obstacles.push (o);
+	
+	return o;
 };
 
 function grid_val (coord) {
