@@ -302,7 +302,7 @@ Game_Object.prototype.draw =
 	    || this.left() > screen_clip.x + screen_clip.w
 	    || this.bottom() < screen_clip.y
 	    || this.top() > screen_clip.y + screen_clip.h) {
-	    return;
+	    //return;
 	}
 	if (typeof (this.frames) != "undefined" && this.frames != []) {
 	    this.image = this.frames[this.current_frame];

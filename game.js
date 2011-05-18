@@ -15,6 +15,7 @@ var DIRS = {
 };
 
 var keys = {};
+var villages = [];
 
 var music;
 
@@ -152,9 +153,17 @@ Aqueduct.add_piece = function (x, y, dir) {
     } else if (aqueduct_supply == 0){
             loss();
     }
+	
+	//checks to see if the piece placed is touching a village
+	//if it is, it adds that villages supply to the player's supply
+	for(v in villages){
+		if ( aqueduct_path[aqueduct_path.length - 1].touching(villages[v]) ){
+			adjust_supply (villages[v].supply);
+			villages[v].supply = 0;
+		}
+	}
 };
 
-var villages = [];
 Village.prototype = new Grid_Object;
 function Village (x, y) {
     Grid_Object.call (this, x, y, "right", "village.png");
