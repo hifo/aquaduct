@@ -263,6 +263,9 @@ function draw () {
 	villages[v].draw (ctx);
     }
 
+	for (o in obstacles){
+	obstacle[o].draw (ctx);
+	}
     draw_game_message (ctx, canvas);
 }
 
