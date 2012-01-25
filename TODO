@@ -1,0 +1,16 @@
+Features:
+
+- Game needs to stop and provide options when won or lost
+- Need to make level editor
+- Impassable terrain
+- Hidden-cost terrain (revealed as in Minesweeper)
+- Record remaining stone at the end of beaten level
+- Level track
+- Bronze/Silver/Gold medals for beating levels (determined
+    programmically in future?)
+
+
+Bugs:
+
+- Villages can show up in the starting water area and finish area
+- You can still place spaces after winning or losing

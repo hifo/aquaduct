@@ -84,3 +84,7 @@ Schedule
 	4. Limited number of aqueduct pieces - done
 	5. Placing adjacent to villages provides more pieces
 	6. Make villages randomly appear above and below the open strip
+
+BUGS
+
+- Villages can appear within water source
