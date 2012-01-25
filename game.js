@@ -18,6 +18,8 @@ var DIRS = {
 
 var keys = {};
 
+var music;
+
 function adjust_supply (amount) {
     aqueduct_supply += amount;
     $("#supply").text (aqueduct_supply);
@@ -165,6 +167,7 @@ Aqueduct.add_piece = function (x, y, dir, extension) {
 	    }
 	}
     }
+	play_sound_effect("rock1.mp3");
 
     if (x == GRID_W - 3) {
 	if (y == Math.floor (GRID_H / 2) - 1 || y == Math.floor (GRID_H / 2)) {
@@ -178,6 +181,16 @@ Aqueduct.add_piece = function (x, y, dir, extension) {
     } else if (aqueduct_supply == 0){
             loss();
     }
+	
+	//checks to see if the piece placed is touching a village
+	//if it is, it adds that villages supply to the player's supply
+	//currently triggers even on diagonals, this might want to change (May 18, 2011)
+	for(v in villages){
+		if ( aqueduct_path[aqueduct_path.length - 1].touching(villages[v]) ){
+			adjust_supply (villages[v].supply);
+			villages[v].supply = 0;
+		}
+	}
 };
 Aqueduct.connect_to_village = function (village, dir) {
     adjust_supply (1);
@@ -196,14 +209,30 @@ function Village (x, y) {
     this.irrigated = false;
 }
 Village.create = function () {
-    var x = Math.floor (Math.random() * GRID_W);
-    var y = Math.floor (Math.random() * GRID_H);
+    var x = Math.floor ( roll(GRID_W));
+    var y = Math.floor ( roll(GRID_H));
 
     var v = new Village (x, y);
 
     villages.push (v);
 
     return v;
+};
+
+var obstacles = [];
+Obstacle.prototype = new Grid_Object;
+function Obstacle (x,y) {
+	//Grid_Object.call (this, x, y, "right", "image src");
+}
+Obstacle.create = function () {
+	var x = Math.floor ( roll(GRID_W));
+	var y = Math.floor ( roll(GRID_H));
+	
+	var o = new Obstacle (x,y);
+	
+	obstacles.push (o);
+	
+	return o;
 };
 
 function grid_val (coord) {
@@ -270,6 +299,9 @@ function draw () {
 	villages[v].draw (ctx);
     }
 
+	for (o in obstacles){
+	obstacle[o].draw (ctx);
+	}
     draw_game_message (ctx, canvas);
 }
 
@@ -335,8 +367,57 @@ function key_release (event) {
     }
 }
 
+function load_sound () {
+    music = new Audio ("Blood Begets Blood.mp3");
+}
+
+function mute () {
+    music.volume = 0;
+}
+function unmute () {
+    music.volume = 1;
+}
+function toggle_mute (event) {
+    if (music.volume == 0) {
+	music.volume = 1;
+    sound_fx_muted = false;
+    } else {
+	music.volume = 0;
+    sound_fx_muted = true;
+    }
+}
+
+var sound_fx_muted = false;
+
+function play_sound_effect(src){
+    var sound_effect = new Audio (src);
+
+    if (sound_fx_muted) {
+	sound_effect.volume = 0;
+    } else {
+	sound_effect.volume = 1;
+    }
+    sound_effect.play ();
+}
+
+function start_intro () {
+    started = true;
+    in_intro = true;
+    intro_stage = 0;
+    game_msg = "";
+    tutorial_msg = "Welcome to Aqueduct Builder\n(Press T to continue in tutorial)";
+    music = new Audio ("assets/PH_mus_intro_1.ogg");
+    run_main_loop ();
+}
+
+function intro () {
+	game_messages.push (new Game_Msg ("The ancient Roman civilization was the first to use channels to direct water from natural sources to reservoirs and on to where the water was needed. These above-ground channels, called aqueducts, were made of stone and concrete. The first aqueduct was built in 312 BCE to bring water to the rapidly expanding city of Rome. As the Romans grew their empire, they brought the technology of Aqueducts across Europe.", "rgb(255, 0, 0)"));
+}
+
 function init () {
     canvas = document.getElementById("canvas");
+    
+    load_sound ();
 
     aqueduct_supply = 20;
     adjust_supply (0);
@@ -354,6 +435,9 @@ function init () {
 
     $(canvas).mousedown (mouse_down);
     $(canvas).mousemove (mouse_motion);
+    
+    music.loop = true;
+    music.play ();
 
     trigger_update ();
 }
