@@ -34,21 +34,6 @@ function loss (){
     game_messages.push (new Game_Msg ("You lose!", "rgb(255, 0,0)"));
 }
 
-function Rect (left, right, top, bottom) {
-    this.left = left;
-    this.right = right;
-    this.top = top;
-    this.bottom = bottom;
-}
-Rect.prototype.point_inside =
-    function (x, y) {
-	return ((x >= this.left) && (x <= this.right)
-		&& (y >= this.top) && (y <= this.bottom));
-    };
-
-var WATER_SOURCE_RECT = new Rect (0, 2, 4, 8);
-var CITY_RECT = new Rect (22, 24, 5, 7);
-
 Grid_Object.prototype = new Game_Object;
 function Grid_Object (x, y, dir, image, xspan, yspan) {
     Game_Object.call (this, image, 1, 0, 0, DIRS[dir] * Math.PI / 2, "rect");
@@ -78,6 +63,13 @@ Grid_Object.prototype.grid_touching =
 		 && (Math.abs (this.grid_y - gobj.grid_y) == 1))
 		|| ((this.grid_y == gobj.grid_y)
 		    && (Math.abs (this.grid_x - gobj.grid_x) == 1)));
+    };
+Grid_Object.prototype.grid_point_in =
+    function (point, other) {
+	if (typeof (other) != "undefined") {
+	    point = [point, other];
+	}
+	return this.point_in ([point[0] * GRID_SIZE, point[1] * GRID_SIZE]);
     };
 
 var cursor_aqueduct;
@@ -238,15 +230,16 @@ function invalid_village (x, y) {
     if (typeof (x) == "undefined" || typeof (y) == "undefined") {
 	return true;
     }
-    if (WATER_SOURCE_RECT.point_inside (x, y)) {
+    if (water_source.point_in (x, y)) {
 	return true;
     }
-    if (CITY_RECT.point_inside (x, y)) {
+    if (goal_city.point_in (x, y)) {
 	return true;
     }
 
     for (v in villages) {
-	if (x == villages[v].grid_x && y == villages[v].grid_y) {
+	if (Math.abs (x - villages[v].grid_x) <= 1
+	    && Math.abs (y - villages[v].grid_y) <= 1) {
 	    return true;
 	}
     }
