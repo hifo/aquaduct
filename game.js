@@ -8,6 +8,7 @@ var aqueduct_supply = 20;
 var random_pieces_range = 4;
 
 var water_source;
+var goal_city;
 
 var DIRS = {
     'right': 0,
@@ -49,17 +50,27 @@ var WATER_SOURCE_RECT = new Rect (0, 2, 4, 8);
 var CITY_RECT = new Rect (22, 24, 5, 7);
 
 Grid_Object.prototype = new Game_Object;
-function Grid_Object (x, y, dir, image) {
+function Grid_Object (x, y, dir, image, xspan, yspan) {
     Game_Object.call (this, image, 1, 0, 0, DIRS[dir] * Math.PI / 2, "rect");
     this.grid_x = x;
     this.grid_y = y;
     this.dir = dir;
+    if (typeof(xspan) == "undefined") {
+	this.xspan = 1;
+    } else {
+	this.xspan = xspan;
+    }
+    if (typeof(yspan) == "undefined") {
+	this.yspan = 1;
+    } else {
+	this.yspan = yspan;
+    }
     this.update_pos ();
 }
 Grid_Object.prototype.update_pos =
     function () {
-	this.x = this.grid_x * GRID_SIZE + GRID_SIZE / 2;
-	this.y = this.grid_y * GRID_SIZE + GRID_SIZE / 2;
+	this.x = this.grid_x * GRID_SIZE + this.xspan * GRID_SIZE / 2;
+	this.y = this.grid_y * GRID_SIZE + this.yspan * GRID_SIZE / 2;
     };
 Grid_Object.prototype.grid_touching =
     function (gobj) {
@@ -68,7 +79,6 @@ Grid_Object.prototype.grid_touching =
 		|| ((this.grid_y == gobj.grid_y)
 		    && (Math.abs (this.grid_x - gobj.grid_x) == 1)));
     };
-
 
 var cursor_aqueduct;
 var aqueduct_path = [];
@@ -324,15 +334,15 @@ function draw () {
     draw_grid (ctx);
 
     // Draw lake
-    ctx.save ();
-    safe_draw_image (ctx, water_source, 0, (GRID_H / 2 - 2) * GRID_SIZE);
-    ctx.restore ();
+    water_source.draw (ctx);
 
     // Draw city
-    ctx.save ();
-    safe_draw_image(ctx, goal_city, (GRID_W - 2) * GRID_SIZE, 5 * GRID_SIZE,
-		    2 * GRID_SIZE, 2 * GRID_SIZE);
-    ctx.restore ();
+    goal_city.draw (ctx);
+//    ctx.save ();
+
+//    safe_draw_image(ctx, goal_city, (GRID_W - 2) * GRID_SIZE, 5 * GRID_SIZE,
+//		    2 * GRID_SIZE, 2 * GRID_SIZE);
+//    ctx.restore ();
 
     if (cursor_aqueduct.visible) {
 	ctx.save ();
@@ -487,8 +497,9 @@ function init () {
 
     cursor_aqueduct = new Aqueduct (0, 0, "right");
     cursor_aqueduct.visible = false;
-    goal_city = load_image("goal_city.png");
-    water_source = load_image("source.png");
+
+    water_source = new Grid_Object (0, 4, 0, "source.png", 2, 4);
+    goal_city = new Grid_Object (22, 5, 0, "goal_city.png", 2, 2);
     
     background = load_image("background.png");
 
