@@ -33,6 +33,21 @@ function loss (){
     game_messages.push (new Game_Msg ("You lose!", "rgb(255, 0,0)"));
 }
 
+function Rect (left, right, top, bottom) {
+    this.left = left;
+    this.right = right;
+    this.top = top;
+    this.bottom = bottom;
+}
+Rect.prototype.point_inside =
+    function (x, y) {
+	return ((x >= this.left) && (x <= this.right)
+		&& (y >= this.top) && (y <= this.bottom));
+    };
+
+var WATER_SOURCE_RECT = new Rect (0, 2, 4, 8);
+var CITY_RECT = new Rect (22, 24, 5, 7);
+
 Grid_Object.prototype = new Game_Object;
 function Grid_Object (x, y, dir, image) {
     Game_Object.call (this, image, 1, 0, 0, DIRS[dir] * Math.PI / 2, "rect");
@@ -41,10 +56,19 @@ function Grid_Object (x, y, dir, image) {
     this.dir = dir;
     this.update_pos ();
 }
-Grid_Object.prototype.update_pos = function () {
-    this.x = this.grid_x * GRID_SIZE + GRID_SIZE / 2;
-    this.y = this.grid_y * GRID_SIZE + GRID_SIZE / 2;
-};
+Grid_Object.prototype.update_pos =
+    function () {
+	this.x = this.grid_x * GRID_SIZE + GRID_SIZE / 2;
+	this.y = this.grid_y * GRID_SIZE + GRID_SIZE / 2;
+    };
+Grid_Object.prototype.grid_touching =
+    function (gobj) {
+	return (((this.grid_x == gobj.grid_x)
+		 && (Math.abs (this.grid_y - gobj.grid_y) == 1))
+		|| ((this.grid_y == gobj.grid_y)
+		    && (Math.abs (this.grid_x - gobj.grid_x) == 1)));
+    };
+
 
 var cursor_aqueduct;
 var aqueduct_path = [];
@@ -186,7 +210,7 @@ Aqueduct.add_piece = function (x, y, dir, extension) {
 	//if it is, it adds that villages supply to the player's supply
 	//currently triggers even on diagonals, this might want to change (May 18, 2011)
 	for(v in villages){
-		if ( aqueduct_path[aqueduct_path.length - 1].touching(villages[v]) ){
+		if ( aqueduct_path[aqueduct_path.length - 1].grid_touching(villages[v]) ){
 			adjust_supply (villages[v].supply);
 			villages[v].supply = 0;
 		}
@@ -200,6 +224,27 @@ Aqueduct.connect_to_village = function (village, dir) {
     aqueduct_path[aqueduct_path.length - 1].extension = true;
 };
 
+function invalid_village (x, y) {
+    if (typeof (x) == "undefined" || typeof (y) == "undefined") {
+	return true;
+    }
+    if (WATER_SOURCE_RECT.point_inside (x, y)) {
+	return true;
+    }
+    if (CITY_RECT.point_inside (x, y)) {
+	return true;
+    }
+
+    for (v in villages) {
+	if (x == villages[v].grid_x && y == villages[v].grid_y) {
+	    return true;
+	}
+    }
+
+    return false;
+}    
+    
+
 var villages = [];
 Village.prototype = new Grid_Object;
 function Village (x, y) {
@@ -209,8 +254,13 @@ function Village (x, y) {
     this.irrigated = false;
 }
 Village.create = function () {
-    var x = Math.floor ( roll(GRID_W));
-    var y = Math.floor ( roll(GRID_H));
+    var x;
+    var y;
+
+    while (invalid_village (x, y)) {
+	x = Math.floor ( roll(GRID_W));
+	y = Math.floor ( roll(GRID_H));
+    }
 
     var v = new Village (x, y);
 
