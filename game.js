@@ -367,23 +367,34 @@ function key_release (event) {
     }
 }
 
+function getUrlParams() {
+    var params = {};
+    window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(str,key,value) {
+	params[key] = value;
+    });
+    
+    return params;
+}
+
 function load_sound () {
     music = new Audio ("Blood Begets Blood.mp3");
 }
 
 function mute () {
     music.volume = 0;
+    $("#mute").val ("Unmute");
+    sound_fx_muted = true;
 }
 function unmute () {
     music.volume = 1;
+    $("#mute").val ("Mute");
+    sound_fx_muted = false;
 }
 function toggle_mute (event) {
     if (music.volume === 0) {
-	music.volume = 1;
-    sound_fx_muted = false;
+	unmute ();
     } else {
-	music.volume = 0;
-    sound_fx_muted = true;
+	mute ();
     }
 }
 
@@ -416,6 +427,8 @@ function intro () {
 
 function init () {
     canvas = document.getElementById("canvas");
+
+    params = getUrlParams ();
     
     load_sound ();
 
@@ -438,6 +451,10 @@ function init () {
     
     music.loop = true;
     music.play ();
+
+    if (params["muted"] == "1") {
+	mute ();
+    }
 
     trigger_update ();
 }
