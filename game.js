@@ -64,6 +64,13 @@ Grid_Object.prototype.grid_touching =
 		|| ((this.grid_y == gobj.grid_y)
 		    && (Math.abs (this.grid_x - gobj.grid_x) == 1)));
     };
+Grid_Object.prototype.grid_touching_coord =
+    function (x, y) {
+	return (((this.grid_x == x)
+		 && (Math.abs (this.grid_y - y) == 1))
+		|| ((this.grid_y == y)
+		    && (Math.abs (this.grid_x - x) == 1)));
+    };
 Grid_Object.prototype.grid_point_in =
     function (point, other) {
 	if (typeof (other) != "undefined") {
@@ -230,10 +237,10 @@ function invalid_village (x, y) {
     if (typeof (x) == "undefined" || typeof (y) == "undefined") {
 	return true;
     }
-    if (water_source.point_in (x, y)) {
+    if (water_source.grid_point_in (x, y)) {
 	return true;
     }
-    if (goal_city.point_in (x, y)) {
+    if (goal_city.grid_point_in (x, y)) {
 	return true;
     }
 
