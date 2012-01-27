@@ -50,6 +50,8 @@ function Grid_Object (x, y, dir, image, xspan, yspan) {
     } else {
 	this.yspan = yspan;
     }
+    this.width = this.xspan * GRID_SIZE;
+    this.height = this.yspan * GRID_SIZE;
     this.update_pos ();
 }
 Grid_Object.prototype.update_pos =
@@ -66,10 +68,13 @@ Grid_Object.prototype.grid_touching =
     };
 Grid_Object.prototype.grid_touching_coord =
     function (x, y) {
-	return (((this.grid_x == x)
-		 && (Math.abs (this.grid_y - y) == 1))
-		|| ((this.grid_y == y)
-		    && (Math.abs (this.grid_x - x) == 1)));
+	if (y >= this.grid_y && y < this.grid_y + this.yspan) {
+	    return (x == this.grid_x - 1) || (x == this.grid_x + this.xspan);
+	}
+	if (x >= this.grid_x && x < this.grid_x + this.xspan) {
+	    return (y == this.grid_y - 1) || (y == this.grid_y + this.yspan);
+	}
+	return false;
     };
 Grid_Object.prototype.grid_point_in =
     function (point, other) {
@@ -237,10 +242,10 @@ function invalid_village (x, y) {
     if (typeof (x) == "undefined" || typeof (y) == "undefined") {
 	return true;
     }
-    if (water_source.grid_point_in (x, y)) {
+    if (water_source.grid_point_in (x, y) || water_source.grid_touching_coord (x, y)){
 	return true;
     }
-    if (goal_city.grid_point_in (x, y)) {
+    if (goal_city.grid_point_in (x, y) || goal_city.grid_touching_coord (x, y)) {
 	return true;
     }
 
@@ -250,8 +255,6 @@ function invalid_village (x, y) {
 	    return true;
 	}
     }
-
-    console.log ("(" + x + ", " + y + ") is a valid position.");
 
     return false;
 }    
@@ -272,7 +275,6 @@ Village.create = function () {
     while (invalid_village (x, y)) {
 	x = Math.floor ( roll(GRID_W));
 	y = Math.floor ( roll(GRID_H));
-	console.log ("Trying new position (" + x + ", " + y + ")");
     }
 
     var v = new Village (x, y);
@@ -341,11 +343,6 @@ function draw () {
 
     // Draw city
     goal_city.draw (ctx);
-//    ctx.save ();
-
-//    safe_draw_image(ctx, goal_city, (GRID_W - 2) * GRID_SIZE, 5 * GRID_SIZE,
-//		    2 * GRID_SIZE, 2 * GRID_SIZE);
-//    ctx.restore ();
 
     if (cursor_aqueduct.visible) {
 	ctx.save ();
@@ -492,7 +489,7 @@ function init () {
     canvas = document.getElementById("canvas");
 
     params = getUrlParams ();
-    
+
     load_sound ();
 
     aqueduct_supply = 20;
