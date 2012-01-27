@@ -7,6 +7,9 @@ var GRID_H = 12;
 var aqueduct_supply = 20;
 var random_pieces_range = 4;
 
+var water_source;
+var goal_city;
+
 var DIRS = {
     'right': 0,
     'down': 1,
@@ -32,36 +35,70 @@ function loss (){
 }
 
 Grid_Object.prototype = new Game_Object;
-function Grid_Object (x, y, dir, image) {
+function Grid_Object (x, y, dir, image, xspan, yspan) {
     Game_Object.call (this, image, 1, 0, 0, DIRS[dir] * Math.PI / 2, "rect");
     this.grid_x = x;
     this.grid_y = y;
     this.dir = dir;
+    if (typeof(xspan) == "undefined") {
+	this.xspan = 1;
+    } else {
+	this.xspan = xspan;
+    }
+    if (typeof(yspan) == "undefined") {
+	this.yspan = 1;
+    } else {
+	this.yspan = yspan;
+    }
     this.update_pos ();
 }
-Grid_Object.prototype.update_pos = function () {
-    this.x = this.grid_x * GRID_SIZE + GRID_SIZE / 2;
-    this.y = this.grid_y * GRID_SIZE + GRID_SIZE / 2;
-};
+Grid_Object.prototype.update_pos =
+    function () {
+	this.x = this.grid_x * GRID_SIZE + this.xspan * GRID_SIZE / 2;
+	this.y = this.grid_y * GRID_SIZE + this.yspan * GRID_SIZE / 2;
+    };
+Grid_Object.prototype.grid_touching =
+    function (gobj) {
+	return (((this.grid_x == gobj.grid_x)
+		 && (Math.abs (this.grid_y - gobj.grid_y) == 1))
+		|| ((this.grid_y == gobj.grid_y)
+		    && (Math.abs (this.grid_x - gobj.grid_x) == 1)));
+    };
+Grid_Object.prototype.grid_touching_coord =
+    function (x, y) {
+	return (((this.grid_x == x)
+		 && (Math.abs (this.grid_y - y) == 1))
+		|| ((this.grid_y == y)
+		    && (Math.abs (this.grid_x - x) == 1)));
+    };
+Grid_Object.prototype.grid_point_in =
+    function (point, other) {
+	if (typeof (other) != "undefined") {
+	    point = [point, other];
+	}
+	return this.point_in ([point[0] * GRID_SIZE, point[1] * GRID_SIZE]);
+    };
 
 var cursor_aqueduct;
 var aqueduct_path = [];
 Aqueduct.prototype = new Grid_Object;
 function Aqueduct (x, y, dir) {
     Grid_Object.call (this, x, y, dir,
-		      ["aqueduct_cap.png", "aqueduct.png", "corner.png"]);
+		      ["aqueduct_cap.png", "aqueduct.png", "corner.png",
+		       "none.png"]);
+    this.extension = false;
 }
 Aqueduct.try_add = function (x, y) {
     if (aqueduct_path.length == 0) {
 	if (x < 2) {
-	    if (y == 3) {
+	    if (y === 3) {
 		return "up";
 	    }
-	    if (y == 8) {
+	    if (y === 8) {
 		return "down";
 	    }
 	}
-	if (x == 2) {
+	if (x === 2) {
 	    if (y < 8 && y > 3) {
 		return "right";
 	    }
@@ -70,66 +107,70 @@ Aqueduct.try_add = function (x, y) {
     }
 
     for (a in aqueduct_path) {
-	if (x == aqueduct_path[a].grid_x && y == aqueduct_path[a].grid_y) {
+	if (x === aqueduct_path[a].grid_x && y === aqueduct_path[a].grid_y) {
 	    return false;
 	}
     }
 
     var last_piece = aqueduct_path[aqueduct_path.length - 1];
 
-    if (x == last_piece.grid_x) {
-	if (y == last_piece.grid_y - 1) {
+    if (x === last_piece.grid_x) {
+	if (y === last_piece.grid_y - 1) {
 	    return "up";
 	}
-	if (y == last_piece.grid_y + 1) {
+	if (y === last_piece.grid_y + 1) {
 	    return "down";
 	}
     }
-    if (y == last_piece.grid_y) {
-	if (x == last_piece.grid_x - 1) {
+    if (y === last_piece.grid_y) {
+	if (x === last_piece.grid_x - 1) {
 	    return "left";
 	}
-	if (x == last_piece.grid_x + 1) {
+	if (x === last_piece.grid_x + 1) {
 	    return "right";
 	}
     }
 
     return false;
 };
-Aqueduct.add_piece = function (x, y, dir) {
+Aqueduct.add_piece = function (x, y, dir, extension) {
     adjust_supply (-1);    
 
     if (aqueduct_path.length > 0) {
 	var last_piece = aqueduct_path[aqueduct_path.length - 1];
-	last_piece.current_frame = 1;
+	if (last_piece.extension === false) {
+	    last_piece.current_frame = 1;
+	}
 	if (dir != last_piece.dir) {
-	    last_piece.current_frame = 2;
+	    if (last_piece.extension === false) {
+		last_piece.current_frame = 2;
+	    }
 	    switch (last_piece.dir) {
 	    case "right":
-		if (dir == "down") {
+		if (dir === "down") {
 		    last_piece.theta = 0;
-		} else if (dir == "up") {
+		} else if (dir === "up") {
 		    last_piece.theta = Math.PI / 2;
 		}
 		break;
 	    case "left":
-		if (dir == "down") {
+		if (dir === "down") {
 		    last_piece.theta = 3 * Math.PI / 2;
-		} else if (dir == "up") {
+		} else if (dir === "up") {
 		    last_piece.theta = Math.PI;
 		}
 		break;
 	    case "up":
-		if (dir == "left") {
+		if (dir === "left") {
 		    last_piece.theta = 0;
 		} else if (dir == "right") {
 		    last_piece.theta = 3 * Math.PI / 2;
 		}
 		break;	
 	    case "down":
-		if (dir == "left") {
+		if (dir === "left") {
 		    last_piece.theta = Math.PI / 2;
-		} else if (dir == "right") {
+		} else if (dir === "right") {
 		    last_piece.theta = Math.PI;
 		}
 		break;	
@@ -138,18 +179,39 @@ Aqueduct.add_piece = function (x, y, dir) {
     }
 
     aqueduct_path.push (new Aqueduct (x, y, dir));
+    if (typeof (extension) === "undefined") {
+	for (v in villages) {
+	    if (villages[v].irrigated) {
+		continue;
+	    }
+	    if (x === villages[v].grid_x) {
+		if (y === villages[v].grid_y - 1
+		    || y === villages[v].grid_y + 1) {
+		    Aqueduct.connect_to_village (villages[v], "up");
+		} else if (y === villages[v].grid_y + 1) {
+		    Aqueduct.connect_to_village (villages[v], "down");
+		}
+	    } else if (y === villages[v].grid_y) {
+		if (x === villages[v].grid_x - 1) {
+		    Aqueduct.connect_to_village (villages[v], "left");
+		} else if (x === villages[v].grid_x + 1) {
+		    Aqueduct.connect_to_village (villages[v], "right");
+		}
+	    }
+	}
+    }
 	play_sound_effect("rock1.mp3");
 
-    if (x == GRID_W - 3) {
-	if (y == Math.floor (GRID_H / 2) - 1 || y == Math.floor (GRID_H / 2)) {
+    if (x === GRID_W - 3) {
+	if (y === Math.floor (GRID_H / 2) - 1 || y == Math.floor (GRID_H / 2)) {
 	    victory ();
 	}
     } else if (x > GRID_W - 3) {
-	if (y == Math.floor (GRID_H / 2) - 2
-	    || y == Math.floor (GRID_H / 2) + 1) {
+	if (y === Math.floor (GRID_H / 2) - 2
+	    || y === Math.floor (GRID_H / 2) + 1) {
 	    victory ();
 	}
-    } else if (aqueduct_supply == 0){
+    } else if (aqueduct_supply === 0){
             loss();
     }
 	
@@ -157,23 +219,58 @@ Aqueduct.add_piece = function (x, y, dir) {
 	//if it is, it adds that villages supply to the player's supply
 	//currently triggers even on diagonals, this might want to change (May 18, 2011)
 	for(v in villages){
-		if ( aqueduct_path[aqueduct_path.length - 1].touching(villages[v]) ){
+		if ( aqueduct_path[aqueduct_path.length - 1].grid_touching(villages[v]) ){
 			adjust_supply (villages[v].supply);
 			villages[v].supply = 0;
 		}
 	}
 };
+Aqueduct.connect_to_village = function (village, dir) {
+    adjust_supply (1);
+    village.irrigated = true;
+    Aqueduct.add_piece (village.grid_x, village.grid_y, dir, true);
+    aqueduct_path[aqueduct_path.length - 1].current_frame = 3;
+    aqueduct_path[aqueduct_path.length - 1].extension = true;
+};
+
+function invalid_village (x, y) {
+    if (typeof (x) == "undefined" || typeof (y) == "undefined") {
+	return true;
+    }
+    if (water_source.grid_point_in (x, y)) {
+	return true;
+    }
+    if (goal_city.grid_point_in (x, y)) {
+	return true;
+    }
+
+    for (v in villages) {
+	if (Math.abs (x - villages[v].grid_x) <= 1
+	    && Math.abs (y - villages[v].grid_y) <= 1) {
+	    return true;
+	}
+    }
+
+    return false;
+}    
+    
 
 var villages = [];
 Village.prototype = new Grid_Object;
 function Village (x, y) {
     Grid_Object.call (this, x, y, "right", "village.png");
-    this.supply = Math.floor ( roll(random_pieces_range)) + 1
-	+ Math.floor ( roll(random_pieces_range)) + 1;
+    this.supply = Math.floor (Math.random() * random_pieces_range) + 1
+	+ Math.floor (Math.random() * random_pieces_range) + 1;
+    this.irrigated = false;
 }
 Village.create = function () {
-    var x = Math.floor ( roll(GRID_W));
-    var y = Math.floor ( roll(GRID_H));
+    var x;
+    var y;
+
+    while (invalid_village (x, y)) {
+	x = Math.floor ( roll(GRID_W));
+	y = Math.floor ( roll(GRID_H));
+    }
 
     var v = new Village (x, y);
 
@@ -237,16 +334,15 @@ function draw () {
     draw_grid (ctx);
 
     // Draw lake
-    ctx.save ();
-    ctx.fillStyle = "rgb(0, 0, 255)";
-    ctx.fillRect (0 * GRID_SIZE, 4 * GRID_SIZE, 2 * GRID_SIZE, 4 * GRID_SIZE);
-    ctx.restore ();
+    water_source.draw (ctx);
 
     // Draw city
-    ctx.save ();
-    safe_draw_image(ctx, goal_city, (GRID_W - 2) * GRID_SIZE, 5 * GRID_SIZE,
-		    2 * GRID_SIZE, 2 * GRID_SIZE);
-    ctx.restore ();
+    goal_city.draw (ctx);
+//    ctx.save ();
+
+//    safe_draw_image(ctx, goal_city, (GRID_W - 2) * GRID_SIZE, 5 * GRID_SIZE,
+//		    2 * GRID_SIZE, 2 * GRID_SIZE);
+//    ctx.restore ();
 
     if (cursor_aqueduct.visible) {
 	ctx.save ();
@@ -331,23 +427,34 @@ function key_release (event) {
     }
 }
 
+function getUrlParams() {
+    var params = {};
+    window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(str,key,value) {
+	params[key] = value;
+    });
+    
+    return params;
+}
+
 function load_sound () {
     music = new Audio ("Blood Begets Blood.mp3");
 }
 
 function mute () {
     music.volume = 0;
+    $("#mute").val ("Unmute");
+    sound_fx_muted = true;
 }
 function unmute () {
     music.volume = 1;
+    $("#mute").val ("Mute");
+    sound_fx_muted = false;
 }
 function toggle_mute (event) {
-    if (music.volume == 0) {
-	music.volume = 1;
-    sound_fx_muted = false;
+    if (music.volume === 0) {
+	unmute ();
     } else {
-	music.volume = 0;
-    sound_fx_muted = true;
+	mute ();
     }
 }
 
@@ -380,6 +487,8 @@ function intro () {
 
 function init () {
     canvas = document.getElementById("canvas");
+
+    params = getUrlParams ();
     
     load_sound ();
 
@@ -388,7 +497,9 @@ function init () {
 
     cursor_aqueduct = new Aqueduct (0, 0, "right");
     cursor_aqueduct.visible = false;
-    goal_city = load_image("goal_city.png");
+
+    water_source = new Grid_Object (0, 4, 0, "source.png", 2, 4);
+    goal_city = new Grid_Object (22, 5, 0, "goal_city.png", 2, 2);
     
     background = load_image("background.png");
 
@@ -401,6 +512,10 @@ function init () {
     
     music.loop = true;
     music.play ();
+
+    if (params["muted"] == "1") {
+	mute ();
+    }
 
     trigger_update ();
 }

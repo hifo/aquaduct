@@ -2,10 +2,12 @@
 
 // Game constants
 var FRAME_RATE = 30; // Can be set by application
-var KEY = { RIGHT:39, UP:38, LEFT:37, DOWN:40, SPACE:32, ESCAPE:27, RETURN:13};
+
+var KEY = { RIGHT:39, UP:38, LEFT:37, DOWN:40, SPACE:32, ESCAPE:27, RETURN:13,
+	    SHIFT:16, CONTROL:17, ALT:18, PERIOD:190, MINUS:189, DELETE:46};
 
 // Game variable, can be altered
-var screen_clip = {"x": 0, "y": 0, "w": 640, "h": 480};
+//var screen_clip = {"x": 0, "y": 0, "w": 640, "h": 480};
 
 // Utility functions
 function ord (c) {
@@ -24,6 +26,9 @@ function hypot (a, b) {
 }
 
 function between (x, lower, upper, exclusive) {
+    if (typeof (exclusive) == "undefined") {
+	exclusive = false;
+    }
     if (lower > upper) {
 	var tmp = upper;
 	upper = lower;
@@ -211,6 +216,14 @@ Game_Object.prototype.h =
 	}
 	return this.height * this.scaley;
     };
+Game_Object.prototype.r =
+    function () {
+	if (this.shape != "circle") {
+	    return null;
+	}
+
+	return (this.w() + this.h()) / 2;
+    };
 Game_Object.prototype.left =
     function (val) {
 	if (typeof (val) == "undefined") {
@@ -243,6 +256,19 @@ Game_Object.prototype.bottom =
 	this.y = val - this.h() / 2;
 	return this.y + this.h() / 2;
 
+    };
+Game_Object.prototype.resize = 
+    function (scale) {
+	if (typeof (scale) == "undefined") {
+	    return [this.scalex, this.scaley];
+	}
+	if (scale instanceof Array) {
+	    this.scalex = scale[0];
+	    this.scaley = scale[1];
+	} else {
+	    this.scalex = scale;
+	    this.scaley = scale;
+	}
     };
 Game_Object.prototype.touching =
     function (gobj) {
@@ -296,13 +322,28 @@ Game_Object.prototype.touching =
 	}
 	return null;
     };
+Game_Object.prototype.point_in =
+    function (point, other) {
+	if (typeof (other) != "undefined") {
+	    point = [point, other];
+	}
+	if (this.shape == "circle") {
+	    return (hypot (point[0] - this.x, point[1] - this.y) < this.r());
+	} else if (this.shape == "rect") {
+	    return (between (point[0], this.left(), this.right())
+		    && between (point[1], this.top(), this.bottom()));
+	}
+	return "unknown shape";
+    };
 Game_Object.prototype.draw =
     function (ctx) {
-	if (this.right() < screen_clip.x
-	    || this.left() > screen_clip.x + screen_clip.w
-	    || this.bottom() < screen_clip.y
-	    || this.top() > screen_clip.y + screen_clip.h) {
-	    //return;
+	if (typeof (screen_clip) != "undefined") {
+	    if (this.right() < screen_clip.x
+		|| this.left() > screen_clip.x + screen_clip.w
+		|| this.bottom() < screen_clip.y
+		|| this.top() > screen_clip.y + screen_clip.h) {
+		return;
+	    }
 	}
 	if (typeof (this.frames) != "undefined" && this.frames != []) {
 	    this.image = this.frames[this.current_frame];
@@ -314,7 +355,7 @@ Game_Object.prototype.draw =
 	if (!this.imagefun) {
 	    safe_draw_image (ctx, this.image,
 			     -this.w() / 2, -this.h() / 2,
-			     this.image.width, this.image.height);
+			     this.w(), this.h());
 	} else {
 	    this.imagefun (ctx);
 	}
@@ -342,27 +383,29 @@ Game_Object.prototype.update =
 
 //@arguments border - an enum representing the border
 //@return a boolean representing whether the object is touching the border in question (true) or not (false)
+//TODO: needs to be expanded for circular play areas
 Game_Object.prototype.isTouchingBorder =
-	function (border) {
+    function (border) {
 	switch(border) {
-		case 1: //top
-			if( this.y <= 0 ){
-				return true;
-			}
-		case 2: //bottom
-			if( this.y >= canvas.height ){
-				return true;
-			}
-		case 4: //left
-			if( this.x <= 0 ){
-				return true;
-			}
-		case 3: //right
- 			if( this.x >= canvas.width ){
-				return true;
-			} else{
-				return false
-			}
-			break;
-		}
-	};
+	case 1: //top
+	    if( this.y <= 0 ){
+		return true;
+	    }
+	case 2: //bottom
+	    if( this.y >= canvas.height ){
+		return true;
+	    }
+	case 4: //left
+	    if( this.x <= 0 ){
+		return true;
+	    }
+	case 3: //right
+ 	    if( this.x >= canvas.width ){
+		return true;
+	    } else{
+		return false;
+	    }
+	    break;
+	}
+	return null; // Never reached
+    };
