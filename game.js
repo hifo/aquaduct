@@ -251,6 +251,8 @@ function invalid_village (x, y) {
 	}
     }
 
+    console.log ("(" + x + ", " + y + ") is a valid position.");
+
     return false;
 }    
     
@@ -270,6 +272,7 @@ Village.create = function () {
     while (invalid_village (x, y)) {
 	x = Math.floor ( roll(GRID_W));
 	y = Math.floor ( roll(GRID_H));
+	console.log ("Trying new position (" + x + ", " + y + ")");
     }
 
     var v = new Village (x, y);
