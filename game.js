@@ -365,12 +365,17 @@ function draw () {
     draw_game_message (ctx, canvas);
 }
 
+var updating = false;
+
 function update () {
+    updating = false;
     draw ();
 }
 
 function trigger_update () {
-    setTimeout (update, 100);
+    if (updating == false) {
+	updating = setTimeout (update, 100);
+    }
 }
 
 function mouse_down (event) {
