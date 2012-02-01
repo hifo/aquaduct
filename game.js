@@ -189,7 +189,10 @@ Aqueduct.add_piece = function (x, y, dir, extension) {
 	    if (villages[v].irrigated) {
 		continue;
 	    }
-	    if (x === villages[v].grid_x) {
+	    if (villages[v].grid_point_in (x, y)) {
+		Aqueduct.connect_to_village (villages[v]);
+	    }
+/*	    if (x === villages[v].grid_x) {
 		if (y === villages[v].grid_y - 1
 		    || y === villages[v].grid_y + 1) {
 		    Aqueduct.connect_to_village (villages[v], "up");
@@ -203,6 +206,7 @@ Aqueduct.add_piece = function (x, y, dir, extension) {
 		    Aqueduct.connect_to_village (villages[v], "right");
 		}
 	    }
+*/
 	}
     }
 	play_sound_effect("rock1.mp3");
@@ -233,7 +237,8 @@ Aqueduct.add_piece = function (x, y, dir, extension) {
 Aqueduct.connect_to_village = function (village, dir) {
     adjust_supply (1);
     village.irrigated = true;
-    Aqueduct.add_piece (village.grid_x, village.grid_y, dir, true);
+    village.current_frame = 1;
+//    Aqueduct.add_piece (village.grid_x, village.grid_y, dir, true);
     aqueduct_path[aqueduct_path.length - 1].current_frame = 3;
     aqueduct_path[aqueduct_path.length - 1].extension = true;
 };
@@ -263,7 +268,8 @@ function invalid_village (x, y) {
 var villages = [];
 Village.prototype = new Grid_Object;
 function Village (x, y) {
-    Grid_Object.call (this, x, y, "right", "village.png");
+    Grid_Object.call (this, x, y, "right",
+		      ["village.png", "village-water.png"]);
     this.supply = Math.floor (Math.random() * random_pieces_range) + 1
 	+ Math.floor (Math.random() * random_pieces_range) + 1;
     this.irrigated = false;
