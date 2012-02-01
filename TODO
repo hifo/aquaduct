@@ -12,7 +12,6 @@ Features:
 
 Bugs:
 
-- Villages can show up in the starting water area and finish area
 - You can still place spaces after winning or losing
 - When a village is included in the aquaduct path, the code to determine which piece is drawn is incorrect (picture enclosed)
 - Aquaduct can be placed in villages if two villages are directly adjacent (picture enclosed)
