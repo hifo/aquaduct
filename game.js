@@ -35,6 +35,8 @@ function loss (){
 }
 
 function show_alert_message (msg) {
+    alert_message = new Alert_Message (msg);
+    trigger_update ();
 }
 
 var alert_message = null;
@@ -48,7 +50,12 @@ function Alert_Message (message) {
 }
 Alert_Message.prototype.update =
     function (ctx) {
-	
+	trigger_update (25);
+	this.size -= 10;
+	if (this.size <= 0) {
+	    alert_message = null;
+	}
+    };
 Alert_Message.prototype.draw =
     function (ctx) {
 	ctx.save ();
@@ -56,7 +63,7 @@ Alert_Message.prototype.draw =
 	ctx.font = this.size + "px Sans";
 	w = ctx.measureText (this.message);
 	ctx.translate (canvas.width / 2 - w.width / 2,
-		       canvas.height / 2);
+		       canvas.height / 2 + 30 + (256 - this.size));
 	ctx.fillText (this.message, 0, 0);
 	ctx.restore ();
     };
@@ -107,7 +114,10 @@ Grid_Object.prototype.grid_point_in =
     function (point, other) {
 	if (typeof (other) != "undefined") {
 	    point = [point, other];
+	} else if (point instanceof Grid_Object) {
+	    point = [point.grid_x, point.grid_y];
 	}
+
 	return (point[0] >= this.grid_x && point[0] < this.grid_x + this.xspan)
 	    && (point[1] >= this.grid_y && point[1] < this.grid_y + this.yspan);
     };
@@ -224,15 +234,8 @@ Aqueduct.add_piece = function (x, y, dir, extension) {
     }
 	play_sound_effect("rock1.mp3");
 
-    if (x === GRID_W - 3) {
-	if (y === Math.floor (GRID_H / 2) - 1 || y == Math.floor (GRID_H / 2)) {
-	    victory ();
-	}
-    } else if (x > GRID_W - 3) {
-	if (y === Math.floor (GRID_H / 2) - 2
-	    || y === Math.floor (GRID_H / 2) + 1) {
-	    victory ();
-	}
+    if (goal_city.grid_point_in (aqueduct_path[aqueduct_path.length - 1])) {
+	victory ();
     } else if (aqueduct_supply === 0){
             loss();
     }
@@ -243,7 +246,7 @@ Aqueduct.connect_to_village = function (village, dir) {
     adjust_supply (village.supply);
     aqueduct_path[aqueduct_path.length - 1].current_frame = 3;
     aqueduct_path[aqueduct_path.length - 1].extension = true;
-    show_alert_message ("+" + village.supply);
+    show_alert_message ("+" + (village.supply - 1));
 };
 
 function invalid_village (x, y) {
@@ -383,12 +386,21 @@ var updating = false;
 
 function update () {
     updating = false;
+
+    if (alert_message) {
+	alert_message.update ();
+    }
+
     draw ();
 }
 
-function trigger_update () {
+function trigger_update (ms) {
+    if (typeof (ms) == "undefined") {
+	ms = 100;
+    }
+
     if (updating == false) {
-	updating = setTimeout (update, 100);
+	updating = setTimeout (update, ms);
     }
 }
 
@@ -444,7 +456,7 @@ function key_release (event) {
 	adjust_supply (20);
 	break;
     case ord('3'):
-	alert_message = new Alert_Message ("+3");
+	show_alert_message ("+3");
 	break;
     }
 }
