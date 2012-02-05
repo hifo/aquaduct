@@ -81,7 +81,8 @@ Grid_Object.prototype.grid_point_in =
 	if (typeof (other) != "undefined") {
 	    point = [point, other];
 	}
-	return this.grid_x == point[0] && this.grid_y == point[1];
+	return (point[0] >= this.grid_x && point[0] < this.grid_x + this.xspan)
+	    && (point[1] >= this.grid_y && point[1] < this.grid_y + this.yspan);
     };
 
 var cursor_aqueduct;
@@ -192,21 +193,6 @@ Aqueduct.add_piece = function (x, y, dir, extension) {
 	    if (villages[v].grid_point_in (x, y)) {
 		Aqueduct.connect_to_village (villages[v]);
 	    }
-/*	    if (x === villages[v].grid_x) {
-		if (y === villages[v].grid_y - 1
-		    || y === villages[v].grid_y + 1) {
-		    Aqueduct.connect_to_village (villages[v], "up");
-		} else if (y === villages[v].grid_y + 1) {
-		    Aqueduct.connect_to_village (villages[v], "down");
-		}
-	    } else if (y === villages[v].grid_y) {
-		if (x === villages[v].grid_x - 1) {
-		    Aqueduct.connect_to_village (villages[v], "left");
-		} else if (x === villages[v].grid_x + 1) {
-		    Aqueduct.connect_to_village (villages[v], "right");
-		}
-	    }
-*/
 	}
     }
 	play_sound_effect("rock1.mp3");
@@ -223,22 +209,11 @@ Aqueduct.add_piece = function (x, y, dir, extension) {
     } else if (aqueduct_supply === 0){
             loss();
     }
-	
-	//checks to see if the piece placed is touching a village
-	//if it is, it adds that villages supply to the player's supply
-	//currently triggers even on diagonals, this might want to change (May 18, 2011)
-	for(v in villages){
-		if ( aqueduct_path[aqueduct_path.length - 1].grid_touching(villages[v]) ){
-			adjust_supply (villages[v].supply);
-			villages[v].supply = 0;
-		}
-	}
 };
 Aqueduct.connect_to_village = function (village, dir) {
-    adjust_supply (1);
     village.irrigated = true;
     village.current_frame = 1;
-//    Aqueduct.add_piece (village.grid_x, village.grid_y, dir, true);
+    adjust_supply (villages[v].supply);
     aqueduct_path[aqueduct_path.length - 1].current_frame = 3;
     aqueduct_path[aqueduct_path.length - 1].extension = true;
 };
