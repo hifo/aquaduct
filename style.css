@@ -1,7 +1,7 @@
 h1 { text-align: center }
 div.canvas { margin-left: 50px }
 canvas { border: 5px outset lightgray }
-div.status { width: 1200px; font-size: 110%; font-weight: bold;
+div.status { width: 1200px; font-size: 150%; font-weight: bold;
 	     margin-left: 5px; margin-top: 2px }
 div.loglabel { font-weight: bold; display: none }
 #log { border: medium inset lightgray; padding-top: 3px; padding-left: 5px;
