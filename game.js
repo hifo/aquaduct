@@ -34,6 +34,33 @@ function loss (){
     game_messages.push (new Game_Msg ("You lose!", "rgb(255, 0,0)"));
 }
 
+function show_alert_message (msg) {
+}
+
+var alert_message = null;
+
+Alert_Message.prototype = new Game_Object;
+function Alert_Message (message) {
+    Game_Object.call (this, null, 1,
+		      canvas.width / 2, canvas.height / 2, 0, "rect");
+    this.size = 256;
+    this.message = message;
+}
+Alert_Message.prototype.update =
+    function (ctx) {
+	
+Alert_Message.prototype.draw =
+    function (ctx) {
+	ctx.save ();
+	ctx.fillStyle = "white";
+	ctx.font = this.size + "px Sans";
+	w = ctx.measureText (this.message);
+	ctx.translate (canvas.width / 2 - w.width / 2,
+		       canvas.height / 2);
+	ctx.fillText (this.message, 0, 0);
+	ctx.restore ();
+    };
+
 Grid_Object.prototype = new Game_Object;
 function Grid_Object (x, y, dir, image, xspan, yspan) {
     Game_Object.call (this, image, 1, 0, 0, DIRS[dir] * Math.PI / 2, "rect");
@@ -213,9 +240,10 @@ Aqueduct.add_piece = function (x, y, dir, extension) {
 Aqueduct.connect_to_village = function (village, dir) {
     village.irrigated = true;
     village.current_frame = 1;
-    adjust_supply (villages[v].supply);
+    adjust_supply (village.supply);
     aqueduct_path[aqueduct_path.length - 1].current_frame = 3;
     aqueduct_path[aqueduct_path.length - 1].extension = true;
+    show_alert_message ("+" + village.supply);
 };
 
 function invalid_village (x, y) {
@@ -340,10 +368,15 @@ function draw () {
 	villages[v].draw (ctx);
     }
 
-	for (o in obstacles){
+    for (o in obstacles){
 	obstacle[o].draw (ctx);
-	}
+    }
+
     draw_game_message (ctx, canvas);
+
+    if (alert_message) {
+	alert_message.draw (ctx);
+    }
 }
 
 var updating = false;
@@ -409,6 +442,9 @@ function key_release (event) {
 	break;
     case ord('6'):
 	adjust_supply (20);
+	break;
+    case ord('3'):
+	alert_message = new Alert_Message ("+3");
 	break;
     }
 }
