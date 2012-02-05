@@ -81,7 +81,7 @@ Grid_Object.prototype.grid_point_in =
 	if (typeof (other) != "undefined") {
 	    point = [point, other];
 	}
-	return this.point_in ([point[0] * GRID_SIZE, point[1] * GRID_SIZE]);
+	return this.grid_x == point[0] && this.grid_y == point[1];
     };
 
 var cursor_aqueduct;
