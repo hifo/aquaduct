@@ -8,6 +8,7 @@ var aqueduct_supply = 20;
 var random_pieces_range = 4;
 
 var water_source;
+var goal_city;
 
 var DIRS = {
     'right': 0,
@@ -34,17 +35,54 @@ function loss (){
 }
 
 Grid_Object.prototype = new Game_Object;
-function Grid_Object (x, y, dir, image) {
+function Grid_Object (x, y, dir, image, xspan, yspan) {
     Game_Object.call (this, image, 1, 0, 0, DIRS[dir] * Math.PI / 2, "rect");
     this.grid_x = x;
     this.grid_y = y;
     this.dir = dir;
+    if (typeof(xspan) == "undefined") {
+	this.xspan = 1;
+    } else {
+	this.xspan = xspan;
+    }
+    if (typeof(yspan) == "undefined") {
+	this.yspan = 1;
+    } else {
+	this.yspan = yspan;
+    }
+    this.width = this.xspan * GRID_SIZE;
+    this.height = this.yspan * GRID_SIZE;
     this.update_pos ();
 }
-Grid_Object.prototype.update_pos = function () {
-    this.x = this.grid_x * GRID_SIZE + GRID_SIZE / 2;
-    this.y = this.grid_y * GRID_SIZE + GRID_SIZE / 2;
-};
+Grid_Object.prototype.update_pos =
+    function () {
+	this.x = this.grid_x * GRID_SIZE + this.xspan * GRID_SIZE / 2;
+	this.y = this.grid_y * GRID_SIZE + this.yspan * GRID_SIZE / 2;
+    };
+Grid_Object.prototype.grid_touching =
+    function (gobj) {
+	return (((this.grid_x == gobj.grid_x)
+		 && (Math.abs (this.grid_y - gobj.grid_y) == 1))
+		|| ((this.grid_y == gobj.grid_y)
+		    && (Math.abs (this.grid_x - gobj.grid_x) == 1)));
+    };
+Grid_Object.prototype.grid_touching_coord =
+    function (x, y) {
+	if (y >= this.grid_y && y < this.grid_y + this.yspan) {
+	    return (x == this.grid_x - 1) || (x == this.grid_x + this.xspan);
+	}
+	if (x >= this.grid_x && x < this.grid_x + this.xspan) {
+	    return (y == this.grid_y - 1) || (y == this.grid_y + this.yspan);
+	}
+	return false;
+    };
+Grid_Object.prototype.grid_point_in =
+    function (point, other) {
+	if (typeof (other) != "undefined") {
+	    point = [point, other];
+	}
+	return this.point_in ([point[0] * GRID_SIZE, point[1] * GRID_SIZE]);
+    };
 
 var cursor_aqueduct;
 var aqueduct_path = [];
@@ -186,7 +224,7 @@ Aqueduct.add_piece = function (x, y, dir, extension) {
 	//if it is, it adds that villages supply to the player's supply
 	//currently triggers even on diagonals, this might want to change (May 18, 2011)
 	for(v in villages){
-		if ( aqueduct_path[aqueduct_path.length - 1].touching(villages[v]) ){
+		if ( aqueduct_path[aqueduct_path.length - 1].grid_touching(villages[v]) ){
 			adjust_supply (villages[v].supply);
 			villages[v].supply = 0;
 		}
@@ -200,6 +238,28 @@ Aqueduct.connect_to_village = function (village, dir) {
     aqueduct_path[aqueduct_path.length - 1].extension = true;
 };
 
+function invalid_village (x, y) {
+    if (typeof (x) == "undefined" || typeof (y) == "undefined") {
+	return true;
+    }
+    if (water_source.grid_point_in (x, y) || water_source.grid_touching_coord (x, y)){
+	return true;
+    }
+    if (goal_city.grid_point_in (x, y) || goal_city.grid_touching_coord (x, y)) {
+	return true;
+    }
+
+    for (v in villages) {
+	if (Math.abs (x - villages[v].grid_x) <= 1
+	    && Math.abs (y - villages[v].grid_y) <= 1) {
+	    return true;
+	}
+    }
+
+    return false;
+}    
+    
+
 var villages = [];
 Village.prototype = new Grid_Object;
 function Village (x, y) {
@@ -209,8 +269,13 @@ function Village (x, y) {
     this.irrigated = false;
 }
 Village.create = function () {
-    var x = Math.floor ( roll(GRID_W));
-    var y = Math.floor ( roll(GRID_H));
+    var x;
+    var y;
+
+    while (invalid_village (x, y)) {
+	x = Math.floor ( roll(GRID_W));
+	y = Math.floor ( roll(GRID_H));
+    }
 
     var v = new Village (x, y);
 
@@ -274,15 +339,10 @@ function draw () {
     draw_grid (ctx);
 
     // Draw lake
-    ctx.save ();
-    safe_draw_image (ctx, water_source, 0, (GRID_H / 2 - 2) * GRID_SIZE);
-    ctx.restore ();
+    water_source.draw (ctx);
 
     // Draw city
-    ctx.save ();
-    safe_draw_image(ctx, goal_city, (GRID_W - 2) * GRID_SIZE, 5 * GRID_SIZE,
-		    2 * GRID_SIZE, 2 * GRID_SIZE);
-    ctx.restore ();
+    goal_city.draw (ctx);
 
     if (cursor_aqueduct.visible) {
 	ctx.save ();
@@ -367,23 +427,34 @@ function key_release (event) {
     }
 }
 
+function getUrlParams() {
+    var params = {};
+    window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(str,key,value) {
+	params[key] = value;
+    });
+    
+    return params;
+}
+
 function load_sound () {
     music = new Audio ("Blood Begets Blood.mp3");
 }
 
 function mute () {
     music.volume = 0;
+    $("#mute").val ("Unmute");
+    sound_fx_muted = true;
 }
 function unmute () {
     music.volume = 1;
+    $("#mute").val ("Mute");
+    sound_fx_muted = false;
 }
 function toggle_mute (event) {
     if (music.volume === 0) {
-	music.volume = 1;
-    sound_fx_muted = false;
+	unmute ();
     } else {
-	music.volume = 0;
-    sound_fx_muted = true;
+	mute ();
     }
 }
 
@@ -416,7 +487,9 @@ function intro () {
 
 function init () {
     canvas = document.getElementById("canvas");
-    
+
+    params = getUrlParams ();
+
     load_sound ();
 
     aqueduct_supply = 20;
@@ -424,8 +497,9 @@ function init () {
 
     cursor_aqueduct = new Aqueduct (0, 0, "right");
     cursor_aqueduct.visible = false;
-    goal_city = load_image("goal_city.png");
-    water_source = load_image("source.png");
+
+    water_source = new Grid_Object (0, 4, 0, "source.png", 2, 4);
+    goal_city = new Grid_Object (22, 5, 0, "goal_city.png", 2, 2);
     
     background = load_image("background.png");
 
@@ -438,6 +512,10 @@ function init () {
     
     music.loop = true;
     music.play ();
+
+    if (params["muted"] == "1") {
+	mute ();
+    }
 
     trigger_update ();
 }
