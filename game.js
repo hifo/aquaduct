@@ -481,10 +481,6 @@ function start_intro () {
     run_main_loop ();
 }
 
-function intro () {
-	game_messages.push (new Game_Msg ("The ancient Roman civilization was the first to use channels to direct water from natural sources to reservoirs and on to where the water was needed. These above-ground channels, called aqueducts, were made of stone and concrete. The first aqueduct was built in 312 BCE to bring water to the rapidly expanding city of Rome. As the Romans grew their empire, they brought the technology of Aqueducts across Europe.", "rgb(255, 0, 0)"));
-}
-
 function init () {
     canvas = document.getElementById("canvas");
 

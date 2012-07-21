@@ -7,3 +7,10 @@ div.loglabel { font-weight: bold; display: none }
 #log { border: medium inset lightgray; padding-top: 3px; padding-left: 5px;
        width: 600px; min-height: 200px; display: none }
 span.logtimestamp { color: lightgray }
+#play{
+	border-radius: 42px;
+	border: 5px solid #dcdcdc;
+	color: #777;
+	font-size: 25px;
+	display: inline-block;
+}

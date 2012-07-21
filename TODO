@@ -15,3 +15,13 @@ Bugs:
 - You can still place spaces after winning or losing
 - When a village is included in the aquaduct path, the code to determine which piece is drawn is incorrect (picture enclosed)
 - Aquaduct can be placed in villages if two villages are directly adjacent (picture enclosed)
+
+Necessary Art Assets!:
+	- straight aqueduct pieces
+	- corner pieces 4 of them!
+	- villages
+	- city
+	- construction square
+	- obstacles! various sizes
+	- water source!
+	- background
