@@ -13,4 +13,9 @@ span.logtimestamp { color: lightgray }
 	color: #777;
 	font-size: 25px;
 	display: inline-block;
+    margin-left: 40%;
+}
+p{
+   width: 50%;
+  margin-left: 20%;
 }
