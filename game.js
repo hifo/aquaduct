@@ -6,9 +6,12 @@ var GRID_H = 12;
 
 var aqueduct_supply = 20;
 var random_pieces_range = 4;
-
+var level =1;
+var initialized = false;
+var level_over = false;
 var water_source;
 var goal_city;
+var random_maps = true;
 
 var DIRS = {
     'right': 0,
@@ -23,15 +26,23 @@ var music;
 
 function adjust_supply (amount) {
     aqueduct_supply += amount;
-    $("#supply").text (aqueduct_supply);
+    display_supply();
+}
+
+function display_supply () {
+	$("#supply").text (aqueduct_supply);
 }
 
 function victory () {
-    game_messages.push (new Game_Msg ("You win!", "rgb(255, 0, 0)"));
+    game_messages.push (new Game_Msg ("Level Complete!  Click to Continue!", "rgb(255, 0, 0)"));
+    level +=1;
+    level_over = true;
 }
 
 function loss (){
-    game_messages.push (new Game_Msg ("You lose!", "rgb(255, 0,0)"));
+    game_messages.push (new Game_Msg ("You lose! Click to continue!", "rgb(255, 0,0)"));
+    level=1;
+    level_over = true;
 }
 
 Grid_Object.prototype = new Game_Object;
@@ -373,18 +384,29 @@ function trigger_update () {
     setTimeout (update, 100);
 }
 
+/*
+ * respond to a button press by trying to add a piece
+ * OR
+ * restart game if game is over
+ */
 function mouse_down (event) {
-    var mouse_x = event.offsetX - 5;
-    var mouse_y = event.offsetY - 5;
-
-    x = grid_val (mouse_x);
-    y = grid_val (mouse_y);
-
-    var dir = Aqueduct.try_add (x, y);
-    if (dir) {
-	Aqueduct.add_piece (x, y, dir);
-    }
-    trigger_update ();
+	if(level_over){
+		level_over = false;
+		start_new_level();
+		
+	}else{
+	    var mouse_x = event.offsetX - 5;
+	    var mouse_y = event.offsetY - 5;
+	
+	    x = grid_val (mouse_x);
+	    y = grid_val (mouse_y);
+	
+	    var dir = Aqueduct.try_add (x, y);
+	    if (dir) {
+		Aqueduct.add_piece (x, y, dir);
+	    }
+	    trigger_update ();
+	}
 }
 
 function mouse_motion (event) {
@@ -436,8 +458,28 @@ function getUrlParams() {
     return params;
 }
 
+/*
+ * SOUND SECTION
+ * 
+ * The following parts of code is how our sound is handled.
+ * 
+ * load sound is used to initialize sound
+ * 
+ * Toggle_mute toggles back and forth from mute using mute and unmute.
+ */
 function load_sound () {
-    music = new Audio ("Blood Begets Blood.mp3");
+	if(!initialized)
+	{
+		music = new Audio ("Blood Begets Blood.mp3");
+    }
+	else {
+		/*
+		 * todo: put an else in here to load audio....
+		 * possibly:
+		 * music.pause()
+		 * music = new Audio ("next file here");
+		 */
+	}
 }
 
 function mute () {
@@ -445,11 +487,13 @@ function mute () {
     $("#mute").val ("Unmute");
     sound_fx_muted = true;
 }
+
 function unmute () {
     music.volume = 1;
     $("#mute").val ("Mute");
     sound_fx_muted = false;
 }
+
 function toggle_mute (event) {
     if (music.volume === 0) {
 	unmute ();
@@ -459,6 +503,7 @@ function toggle_mute (event) {
 }
 
 var sound_fx_muted = false;
+
 
 function play_sound_effect(src){
     var sound_effect = new Audio (src);
@@ -471,6 +516,15 @@ function play_sound_effect(src){
     sound_effect.play ();
 }
 
+/*
+ * END SOUND SECTION
+ */
+
+
+/*
+ * to be a introduction page
+ * TODO: Make this do something
+ */
 function start_intro () {
     started = true;
     in_intro = true;
@@ -481,36 +535,116 @@ function start_intro () {
     run_main_loop ();
 }
 
-function init () {
-    canvas = document.getElementById("canvas");
 
-    params = getUrlParams ();
 
-    load_sound ();
+function set_aqueduct_supply(){
+	if (level == 1){
+		aqueduct_supply = 5;
+	}else{
+		aqueduct_supply =21;
+	}
+	
+}
 
-    aqueduct_supply = 20;
-    adjust_supply (0);
+/*
+ * sets the background to an image based upon the level
+ */
+function set_background(){
+	var image;
+	switch(level){
+	case 1:
+		image = "background.png";
+		break;
+	default:
+		image = "background.png";
+		break;
+	}
+	
+	background = load_image(image);
+}
 
-    cursor_aqueduct = new Aqueduct (0, 0, "right");
-    cursor_aqueduct.visible = false;
+/*
+ * destroys all villages on a map
+ */
+function destroy_villages()
+{
+	while(villages.length>0){
+		villages.pop();
+	}
+}
 
-    water_source = new Grid_Object (0, 4, 0, "source.png", 2, 4);
-    goal_city = new Grid_Object (22, 5, 0, "goal_city.png", 2, 2);
-    
-    background = load_image("background.png");
+function destroy_aqueduct(){
+	while(aqueduct_path.length > 0){
+		aqueduct_path.pop();
+	}
+}
 
-    for (var i = 0; i < 6; i++) {
-	Village.create ();
-    }
+
+/*
+ * creates a map to be used at the begining
+ * also instanciates the aquaduct
+ */
+function create_map(){
+	if(random_maps){
+		if (initialized){
+			destroy_villages();
+			destroy_aqueduct();
+			//TODO: get rid of those messages...here might be a good place
+		}
+		cursor_aqueduct = new Aqueduct (0, 0, "right");
+	    cursor_aqueduct.visible = false;
+		
+	    water_source = new Grid_Object (0, 4, 0, "source.png", 2, 4);
+	    goal_city = new Grid_Object (22, 5, 0, "goal_city.png", 2, 2);
+	    for (var i = 0; i < 6; i++) {
+	    	Village.create ();
+	    }
+	}
+	
+}
+
+/*
+ * This creates the conditons for the start of the game
+ */
+function start_new_level() {
+	//starts playing sound
+	load_sound();
+	
+	//sets the aqueduct supply to the appropriate amount for the level.
+	set_aqueduct_supply();
+	display_supply();
+	
+	//creates a background for the game.  Needed to see the game
+	set_background();
+	
+	create_map();
 
     $(canvas).mousedown (mouse_down);
     $(canvas).mousemove (mouse_motion);
-    
+        
     music.loop = true;
     music.play ();
 
     if (params["muted"] == "1") {
-	mute ();
+    	mute ();
+     }
+    level_over = false;
+   
+    
+    
+}
+
+/*
+ * initializes board state
+ */
+function init () {
+    canvas = document.getElementById("canvas");
+
+    params = getUrlParams ();
+    
+    start_new_level();
+    if (!initialized) {
+    	initialized = true;
     }
 
     trigger_update ();

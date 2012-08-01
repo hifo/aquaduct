@@ -12,9 +12,10 @@ Features:
 
 Bugs:
 
-- You can still place spaces after winning or losing
 - When a village is included in the aquaduct path, the code to determine which piece is drawn is incorrect (picture enclosed)
 - Aquaduct can be placed in villages if two villages are directly adjacent (picture enclosed)
+- Game ends early (i believe the aqueduct piece count is added AFTER adding the piece next to a village)
+- Game over screen does not go away but next round starts
 
 Necessary Art Assets!:
 	- straight aqueduct pieces
