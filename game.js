@@ -206,7 +206,9 @@ Aqueduct.add_piece = function (x, y, dir, extension) {
 	}
     }
 	play_sound_effect("rock1.mp3");
-
+    //victory and loss conditions:
+    //  victory: if the the player places a piece adjacent to the goal city
+    //  loss: if the player runs out of pieces
     if (x === GRID_W - 3) {
 	if (y === Math.floor (GRID_H / 2) - 1 || y == Math.floor (GRID_H / 2)) {
 	    victory ();
@@ -242,13 +244,15 @@ function invalid_village (x, y) {
     if (typeof (x) == "undefined" || typeof (y) == "undefined") {
 	return true;
     }
+    //if the grid square is in or touching the water source, do not make a village there
     if (water_source.grid_point_in (x, y) || water_source.grid_touching_coord (x, y)){
 	return true;
     }
+    //if the grid square is in or touching the goal city, do not make a village there
     if (goal_city.grid_point_in (x, y) || goal_city.grid_touching_coord (x, y)) {
 	return true;
     }
-
+    //make sure all villages are on the map
     for (v in villages) {
 	if (Math.abs (x - villages[v].grid_x) <= 1
 	    && Math.abs (y - villages[v].grid_y) <= 1) {
