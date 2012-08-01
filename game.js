@@ -543,7 +543,7 @@ function start_intro () {
 
 function set_aqueduct_supply(){
 	if (level == 1){
-		aqueduct_supply = 5;
+		aqueduct_supply = 20;
 	}else{
 		aqueduct_supply =21;
 	}
